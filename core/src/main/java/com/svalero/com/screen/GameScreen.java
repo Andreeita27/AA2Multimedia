@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
     private Texture gemTexture;
     private Texture exitTexture;
     private Texture frogTexture;
+    private Texture batTexture;
 
     private Vector2 playerPosition;
     private Vector2 playerVelocity;
@@ -68,6 +69,7 @@ public class GameScreen implements Screen {
         gemTexture = new Texture(Gdx.files.internal("redgem.png"));
         exitTexture = new Texture(Gdx.files.internal("finishflag.png"));
         frogTexture = new Texture(Gdx.files.internal("frog.png"));
+        batTexture = new Texture(Gdx.files.internal("bat.png"));
 
         playerPosition = new Vector2(100, Constants.GROUND_Y);
         playerVelocity = new Vector2(0, 0);
@@ -99,8 +101,9 @@ public class GameScreen implements Screen {
 
         levelExit = new LevelExit(exitTexture, 1320, Constants.GROUND_Y, 60, 90);
 
-        enemies.add(new Enemy(frogTexture, 260, Constants.GROUND_Y, 48, 48, 90f, 220, 420));
-        enemies.add(new Enemy(frogTexture, 720, 370, 48, 48, 80f, 700, 840));
+        enemies.add(new Enemy(frogTexture, 260, Constants.GROUND_Y, 48, 48, 90f, 220, 420, Enemy.EnemyType.FROG));
+        enemies.add(new Enemy(frogTexture, 720, 370, 48, 48, 80f, 700, 840, Enemy.EnemyType.FROG));
+        enemies.add(new Enemy(batTexture, 930, 340, 52, 40, 120f, 900, 1120, Enemy.EnemyType.BAT));
     }
 
     @Override
@@ -255,37 +258,41 @@ public class GameScreen implements Screen {
             }
 
             if (enemy.getBounds().overlaps(playerBounds)) {
-                boolean falling = playerVelocity.y < 0;
-                boolean hittingFromAbove =
-                    playerPosition.y <= enemy.getBounds().y + enemy.getBounds().height + 20 &&
-                        playerPosition.y >= enemy.getBounds().y + enemy.getBounds().height - 25;
 
-                if (falling && hittingFromAbove) {
-                    enemy.kill();
-                    playerVelocity.y = Constants.JUMP_FORCE * 0.55f;
-                    onGround = false;
-                    score += 20;
-                    message = "¡Has aplastado una rana!";
-                    messageTimer = 1.2f;
-                } else {
-                    if (invulnerableTimer > 0) {
+                if (enemy.getType() == Enemy.EnemyType.FROG) {
+                    boolean falling = playerVelocity.y < 0;
+                    boolean hittingFromAbove =
+                        playerPosition.y <= enemy.getBounds().y + enemy.getBounds().height + 20 &&
+                            playerPosition.y >= enemy.getBounds().y + enemy.getBounds().height - 25;
+
+                    if (falling && hittingFromAbove) {
+                        enemy.kill();
+                        playerVelocity.y = Constants.JUMP_FORCE * 0.55f;
+                        onGround = false;
+                        score += 20;
+                        message = "¡Has aplastado una rana!";
+                        messageTimer = 1.2f;
                         return;
                     }
+                }
 
-                    lives--;
-                    invulnerableTimer = 1.5f;
-                    message = "¡Ay! Te han golpeado";
-                    messageTimer = 1.5f;
+                if (invulnerableTimer > 0) {
+                    return;
+                }
 
-                    playerPosition.x = 100;
-                    playerPosition.y = Constants.GROUND_Y;
-                    playerVelocity.set(0, 0);
-                    onGround = true;
+                lives--;
+                invulnerableTimer = 1.5f;
+                message = "¡Ay! Te han golpeado";
+                messageTimer = 1.5f;
 
-                    if (lives <= 0) {
-                        message = "Game Over";
-                        messageTimer = 3f;
-                    }
+                playerPosition.x = 100;
+                playerPosition.y = Constants.GROUND_Y;
+                playerVelocity.set(0, 0);
+                onGround = true;
+
+                if (lives <= 0) {
+                    message = "Game Over";
+                    messageTimer = 3f;
                 }
                 return;
             }
@@ -301,18 +308,18 @@ public class GameScreen implements Screen {
         );
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
-            if (allCrystalsCollected()) {
+            if (allGemsCollected()) {
                 message = "¡Nivel completado!";
                 messageTimer = 2f;
             } else {
-                int remaining = countRemainingCrystals();
+                int remaining = countRemainingGems();
                 message = "Te faltan " + remaining + " gemas";
                 messageTimer = 2f;
             }
         }
     }
 
-    private boolean allCrystalsCollected() {
+    private boolean allGemsCollected() {
         for (Collectible collectible : collectibles) {
             if (!collectible.isCollected()) {
                 return false;
@@ -321,7 +328,7 @@ public class GameScreen implements Screen {
         return true;
     }
 
-    private int countRemainingCrystals() {
+    private int countRemainingGems() {
         int remaining = 0;
         for (Collectible collectible : collectibles) {
             if (!collectible.isCollected()) {
@@ -399,7 +406,7 @@ public class GameScreen implements Screen {
 
         font.draw(batch, "Vidas: " + lives, hudX, hudY);
         font.draw(batch, "Puntos: " + score, hudX, hudY - 30);
-        font.draw(batch, "Gemas: " + (totalGems - countRemainingCrystals()) + "/" + totalGems, hudX, hudY - 60);
+        font.draw(batch, "Gemas: " + (totalGems - countRemainingGems()) + "/" + totalGems, hudX, hudY - 60);
 
         if (!message.isEmpty()) {
             font.draw(batch, message, cameraLeft + 260, Gdx.graphics.getHeight() - 50);
@@ -434,5 +441,6 @@ public class GameScreen implements Screen {
         gemTexture.dispose();
         exitTexture.dispose();
         frogTexture.dispose();
+        batTexture.dispose();
     }
 }
