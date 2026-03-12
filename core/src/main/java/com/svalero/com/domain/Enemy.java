@@ -10,6 +10,11 @@ import lombok.Setter;
 @Setter
 public class Enemy {
 
+    public enum EnemyType {
+        FROG,
+        BAT
+    }
+
     private Texture texture;
     @Getter
     private Rectangle bounds;
@@ -19,8 +24,10 @@ public class Enemy {
     private int direction;
     @Getter
     private boolean alive;
+    @Getter
+    private EnemyType type;
 
-    public Enemy(Texture texture, float x, float y, float width, float height, float speed, float minX, float maxX) {
+    public Enemy(Texture texture, float x, float y, float width, float height, float speed, float minX, float maxX, EnemyType type) {
         this.texture = texture;
         this.bounds = new Rectangle(x, y, width, height);
         this.speed = speed;
@@ -28,6 +35,7 @@ public class Enemy {
         this.maxX = maxX;
         this.direction = 1;
         this.alive = true;
+        this.type = type;
     }
 
     public void update(float delta) {
