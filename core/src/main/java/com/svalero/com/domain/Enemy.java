@@ -17,6 +17,8 @@ public class Enemy {
     private float minX;
     private float maxX;
     private int direction;
+    @Getter
+    private boolean alive;
 
     public Enemy(Texture texture, float x, float y, float width, float height, float speed, float minX, float maxX) {
         this.texture = texture;
@@ -25,9 +27,14 @@ public class Enemy {
         this.minX = minX;
         this.maxX = maxX;
         this.direction = 1;
+        this.alive = true;
     }
 
     public void update(float delta) {
+        if (!alive) {
+            return;
+        }
+
         bounds.x += speed * direction * delta;
 
         if (bounds.x <= minX) {
@@ -42,6 +49,12 @@ public class Enemy {
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
+        if (alive) {
+            batch.draw(texture, bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+    }
+
+    public void kill() {
+        alive = false;
     }
 }
