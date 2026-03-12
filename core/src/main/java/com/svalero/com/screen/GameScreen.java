@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.svalero.com.MiJuego;
 import com.svalero.com.domain.Collectible;
 import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
@@ -20,6 +21,7 @@ import com.svalero.com.util.Constants;
 
 public class GameScreen implements Screen {
 
+    private final MiJuego game;
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
@@ -52,6 +54,10 @@ public class GameScreen implements Screen {
     private float messageTimer;
 
     private float invulnerableTimer;
+
+    public GameScreen(MiJuego game) {
+        this.game = game;
+    }
 
     @Override
     public void show() {
