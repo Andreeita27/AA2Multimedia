@@ -105,16 +105,21 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        handleInput();
-        applyGravity(delta);
-        updatePlayer(delta);
-        checkPlatformCollisions();
-        updateEnemies(delta);
-        checkCollectibles();
-        checkEnemyCollisions();
-        checkLevelExit();
+        if (lives > 0) {
+            handleInput();
+            applyGravity(delta);
+            updatePlayer(delta);
+            checkPlatformCollisions();
+            updateEnemies(delta);
+            checkCollectibles();
+            checkEnemyCollisions();
+            checkLevelExit();
+            updateMessage(delta);
+            updateInvulnerability(delta);
+            updateCamera();
+        }
+
         updateMessage(delta);
-        updateInvulnerability(delta);
         updateCamera();
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
@@ -237,10 +242,6 @@ public class GameScreen implements Screen {
     }
 
     private void checkEnemyCollisions() {
-        if (invulnerableTimer > 0) {
-            return;
-        }
-
         Rectangle playerBounds = new Rectangle(
             playerPosition.x,
             playerPosition.y,
@@ -249,20 +250,42 @@ public class GameScreen implements Screen {
         );
 
         for (Enemy enemy : enemies) {
+            if (!enemy.isAlive()) {
+                continue;
+            }
+
             if (enemy.getBounds().overlaps(playerBounds)) {
-                lives--;
-                invulnerableTimer = 1.5f;
-                message = "¡Ay! Te han golpeado";
-                messageTimer = 1.5f;
+                boolean falling = playerVelocity.y < 0;
+                boolean hittingFromAbove =
+                    playerPosition.y <= enemy.getBounds().y + enemy.getBounds().height + 20 &&
+                        playerPosition.y >= enemy.getBounds().y + enemy.getBounds().height - 25;
 
-                playerPosition.x = 100;
-                playerPosition.y = Constants.GROUND_Y;
-                playerVelocity.set(0, 0);
-                onGround = true;
+                if (falling && hittingFromAbove) {
+                    enemy.kill();
+                    playerVelocity.y = Constants.JUMP_FORCE * 0.55f;
+                    onGround = false;
+                    score += 20;
+                    message = "¡Has aplastado una rana!";
+                    messageTimer = 1.2f;
+                } else {
+                    if (invulnerableTimer > 0) {
+                        return;
+                    }
 
-                if (lives <= 0) {
-                    message = "Game Over";
-                    messageTimer = 3f;
+                    lives--;
+                    invulnerableTimer = 1.5f;
+                    message = "¡Ay! Te han golpeado";
+                    messageTimer = 1.5f;
+
+                    playerPosition.x = 100;
+                    playerPosition.y = Constants.GROUND_Y;
+                    playerVelocity.set(0, 0);
+                    onGround = true;
+
+                    if (lives <= 0) {
+                        message = "Game Over";
+                        messageTimer = 3f;
+                    }
                 }
                 return;
             }
