@@ -35,7 +35,7 @@ public class GameOverScreen implements Screen {
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new GameScreen(game));
+            game.setScreen(new MainMenuScreen(game));
         }
 
         Gdx.gl.glClearColor(0.1f, 0f, 0f, 1f);
@@ -47,7 +47,7 @@ public class GameOverScreen implements Screen {
 
         font.draw(batch, "GAME OVER", 240, 280);
         font.getData().setScale(1.2f);
-        font.draw(batch, "Pulsa ENTER para intentarlo otra vez.", 180, 220);
+        font.draw(batch, "Pulsa ENTER para volver al menú.", 180, 220);
 
         batch.end();
     }
