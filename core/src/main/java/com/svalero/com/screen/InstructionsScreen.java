@@ -10,14 +10,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
 
-public class MainMenuScreen implements Screen {
+public class InstructionsScreen implements Screen {
 
     private final MiJuego game;
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
 
-    public MainMenuScreen(MiJuego game) {
+    public InstructionsScreen(MiJuego game) {
         this.game = game;
     }
 
@@ -34,32 +34,28 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            game.setScreen(new GameScreen(game));
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            game.setScreen(new InstructionsScreen(game));
-        }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+            game.setScreen(new MainMenuScreen(game));
         }
 
-        Gdx.gl.glClearColor(0.08f, 0.08f, 0.12f, 1f);
+        Gdx.gl.glClearColor(0.04f, 0.08f, 0.12f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
 
-        font.getData().setScale(2f);
-        font.draw(batch, "ADVENTURER PLATFORM", 170, 360);
+        font.getData().setScale(1.8f);
+        font.draw(batch, "CÓMO JUGAR", 240, 360);
 
-        font.getData().setScale(1.2f);
-        font.draw(batch, "1 - Jugar", 280, 270);
-        font.draw(batch, "2 - Instrucciones", 280, 230);
-        font.draw(batch, "ESC - Salir", 280, 150);
+        font.getData().setScale(1.05f);
+        font.draw(batch, "- Flechas izquierda / derecha para moverte", 120, 290);
+        font.draw(batch, "- ESPACIO para saltar", 120, 255);
+        font.draw(batch, "- Recoge todas las gemas", 120, 220);
+        font.draw(batch, "- Llega a la salida para ganar", 120, 185);
+        font.draw(batch, "- La rana, el ratón y el murciélago hacen daño", 120, 150);
+        font.draw(batch, "- Solo el ratón se puede aplastar saltando encima", 120, 115);
+        font.draw(batch, "- ESC para volver al menu", 120, 70);
 
         batch.end();
     }
