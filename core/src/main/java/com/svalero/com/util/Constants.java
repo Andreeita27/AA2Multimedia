@@ -14,6 +14,6 @@ public class Constants {
     public static final float WORLD_WIDTH = 1400f;
     public static final float WORLD_HEIGHT = 480f;
 
-    public static final int POINTS_PER_CRYSTAL = 10;
+    public static final int POINTS_PER_GEM = 10;
     public static final int INITIAL_LIVES = 3;
 }
