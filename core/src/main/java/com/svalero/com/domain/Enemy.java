@@ -12,7 +12,8 @@ public class Enemy {
 
     public enum EnemyType {
         FROG,
-        BAT
+        BAT,
+        MOUSE
     }
 
     private Texture texture;
@@ -39,20 +40,43 @@ public class Enemy {
     }
 
     public void update(float delta) {
+
         if (!alive) {
             return;
         }
 
-        bounds.x += speed * direction * delta;
+        switch (type) {
 
-        if (bounds.x <= minX) {
-            bounds.x = minX;
-            direction = 1;
-        }
+            case FROG:
+                // salto en el sitio
+                bounds.y += speed * direction * delta;
 
-        if (bounds.x + bounds.width >= maxX) {
-            bounds.x = maxX - bounds.width;
-            direction = -1;
+                if (bounds.y >= maxX) {
+                    direction = -1;
+                }
+
+                if (bounds.y <= minX) {
+                    direction = 1;
+                }
+
+                break;
+
+            case BAT:
+            case MOUSE:
+                // movimiento horizontal
+                bounds.x += speed * direction * delta;
+
+                if (bounds.x <= minX) {
+                    bounds.x = minX;
+                    direction = 1;
+                }
+
+                if (bounds.x + bounds.width >= maxX) {
+                    bounds.x = maxX - bounds.width;
+                    direction = -1;
+                }
+
+                break;
         }
     }
 

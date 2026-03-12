@@ -32,6 +32,7 @@ public class GameScreen implements Screen {
     private Texture exitTexture;
     private Texture frogTexture;
     private Texture batTexture;
+    private Texture mouseTexture;
 
     private Vector2 playerPosition;
     private Vector2 playerVelocity;
@@ -70,8 +71,9 @@ public class GameScreen implements Screen {
         exitTexture = new Texture(Gdx.files.internal("finishflag.png"));
         frogTexture = new Texture(Gdx.files.internal("frog.png"));
         batTexture = new Texture(Gdx.files.internal("bat.png"));
+        mouseTexture = new Texture(Gdx.files.internal("mouse.png"));
 
-        playerPosition = new Vector2(100, Constants.GROUND_Y);
+        playerPosition = new Vector2(40, Constants.GROUND_Y);
         playerVelocity = new Vector2(0, 0);
         onGround = true;
 
@@ -85,25 +87,72 @@ public class GameScreen implements Screen {
         collectibles = new Array<>();
         enemies = new Array<>();
 
-        platforms.add(new Platform(platformTexture, 220, 170, 140, 40));
-        platforms.add(new Platform(platformTexture, 430, 250, 140, 40));
-        platforms.add(new Platform(platformTexture, 700, 330, 140, 40));
-        platforms.add(new Platform(platformTexture, 980, 260, 140, 40));
-        platforms.add(new Platform(platformTexture, 1180, 180, 140, 40));
+        platforms.add(new Platform(platformTexture, 220, 160, 140, 40));
+        platforms.add(new Platform(platformTexture, 430, 240, 140, 40));
+        platforms.add(new Platform(platformTexture, 700, 190, 140, 40));
+        platforms.add(new Platform(platformTexture, 930, 300, 140, 40));
+        platforms.add(new Platform(platformTexture, 1160, 220, 140, 40));
 
-        collectibles.add(new Collectible(gemTexture, 250, 220, 32, 32, Constants.POINTS_PER_CRYSTAL));
-        collectibles.add(new Collectible(gemTexture, 470, 300, 32, 32, Constants.POINTS_PER_CRYSTAL));
-        collectibles.add(new Collectible(gemTexture, 740, 380, 32, 32, Constants.POINTS_PER_CRYSTAL));
-        collectibles.add(new Collectible(gemTexture, 1010, 310, 32, 32, Constants.POINTS_PER_CRYSTAL));
-        collectibles.add(new Collectible(gemTexture, 1230, 230, 32, 32, Constants.POINTS_PER_CRYSTAL));
+        collectibles.add(new Collectible(gemTexture, 260, 210, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 470, 290, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 735, 240, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 970, 350, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 1200, 270, 32, 32, Constants.POINTS_PER_GEM));
 
         totalGems = collectibles.size;
 
-        levelExit = new LevelExit(exitTexture, 1320, Constants.GROUND_Y, 60, 90);
+        levelExit = new LevelExit(exitTexture, 1320, Constants.GROUND_Y, 70, 100);
 
-        enemies.add(new Enemy(frogTexture, 260, Constants.GROUND_Y, 48, 48, 90f, 220, 420, Enemy.EnemyType.FROG));
-        enemies.add(new Enemy(frogTexture, 720, 370, 48, 48, 80f, 700, 840, Enemy.EnemyType.FROG));
-        enemies.add(new Enemy(batTexture, 930, 340, 52, 40, 120f, 900, 1120, Enemy.EnemyType.BAT));
+        // Ranas
+        enemies.add(new Enemy(
+            frogTexture,
+            520,
+            Constants.GROUND_Y + 20,
+            48,
+            48,
+            90f,
+            Constants.GROUND_Y + 20,
+            Constants.GROUND_Y + 120,
+            Enemy.EnemyType.FROG
+        ));
+
+        enemies.add(new Enemy(
+            frogTexture,
+            1120,
+            Constants.GROUND_Y + 20,
+            48,
+            48,
+            90f,
+            Constants.GROUND_Y + 20,
+            Constants.GROUND_Y + 120,
+            Enemy.EnemyType.FROG
+        ));
+
+        // Murciélagos
+        enemies.add(new Enemy(
+            batTexture,
+            940,
+            360,
+            52,
+            40,
+            120f,
+            900,
+            1120,
+            Enemy.EnemyType.BAT
+        ));
+
+        // Ratones
+        enemies.add(new Enemy(
+            mouseTexture,
+            710,
+            230,
+            40,
+            28,
+            170f,
+            700,
+            840,
+            Enemy.EnemyType.MOUSE
+        ));
     }
 
     @Override
@@ -245,6 +294,7 @@ public class GameScreen implements Screen {
     }
 
     private void checkEnemyCollisions() {
+
         Rectangle playerBounds = new Rectangle(
             playerPosition.x,
             playerPosition.y,
@@ -253,25 +303,33 @@ public class GameScreen implements Screen {
         );
 
         for (Enemy enemy : enemies) {
+
             if (!enemy.isAlive()) {
                 continue;
             }
 
             if (enemy.getBounds().overlaps(playerBounds)) {
 
-                if (enemy.getType() == Enemy.EnemyType.FROG) {
+                if (enemy.getType() == Enemy.EnemyType.MOUSE) {
+
                     boolean falling = playerVelocity.y < 0;
+
                     boolean hittingFromAbove =
                         playerPosition.y <= enemy.getBounds().y + enemy.getBounds().height + 20 &&
                             playerPosition.y >= enemy.getBounds().y + enemy.getBounds().height - 25;
 
                     if (falling && hittingFromAbove) {
+
                         enemy.kill();
-                        playerVelocity.y = Constants.JUMP_FORCE * 0.55f;
+
+                        playerVelocity.y = Constants.JUMP_FORCE * 0.6f;
                         onGround = false;
-                        score += 20;
-                        message = "¡Has aplastado una rana!";
+
+                        score += 25;
+
+                        message = "¡Ratón aplastado!";
                         messageTimer = 1.2f;
+
                         return;
                     }
                 }
@@ -282,10 +340,11 @@ public class GameScreen implements Screen {
 
                 lives--;
                 invulnerableTimer = 1.5f;
+
                 message = "¡Ay! Te han golpeado";
                 messageTimer = 1.5f;
 
-                playerPosition.x = 100;
+                playerPosition.x = 40;
                 playerPosition.y = Constants.GROUND_Y;
                 playerVelocity.set(0, 0);
                 onGround = true;
@@ -294,6 +353,7 @@ public class GameScreen implements Screen {
                     message = "Game Over";
                     messageTimer = 3f;
                 }
+
                 return;
             }
         }
@@ -442,5 +502,6 @@ public class GameScreen implements Screen {
         exitTexture.dispose();
         frogTexture.dispose();
         batTexture.dispose();
+        mouseTexture.dispose();
     }
 }
