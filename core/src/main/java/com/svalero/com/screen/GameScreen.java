@@ -163,7 +163,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (lives > 0) {
             handleInput();
             applyGravity(delta);
             updatePlayer(delta);
@@ -175,7 +174,6 @@ public class GameScreen implements Screen {
             updateMessage(delta);
             updateInvulnerability(delta);
             updateCamera();
-        }
 
         updateMessage(delta);
         updateCamera();
@@ -356,8 +354,8 @@ public class GameScreen implements Screen {
                 onGround = true;
 
                 if (lives <= 0) {
-                    message = "Game Over";
-                    messageTimer = 3f;
+                    game.setScreen(new GameOverScreen(game));
+                    return;
                 }
 
                 return;
@@ -375,8 +373,7 @@ public class GameScreen implements Screen {
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
             if (allGemsCollected()) {
-                message = "¡Nivel completado!";
-                messageTimer = 2f;
+                game.setScreen(new VictoryScreen(game));
             } else {
                 int remaining = countRemainingGems();
                 message = "Te faltan " + remaining + " gemas";
