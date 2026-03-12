@@ -35,7 +35,7 @@ public class VictoryScreen implements Screen {
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new GameScreen(game));
+            game.setScreen(new MainMenuScreen(game));
         }
 
         Gdx.gl.glClearColor(0f, 0.15f, 0f, 1f);
@@ -47,7 +47,7 @@ public class VictoryScreen implements Screen {
 
         font.draw(batch, "¡VICTORIA!", 250, 280);
         font.getData().setScale(1.2f);
-        font.draw(batch, "Pulsa ENTER para volver a jugar", 180, 220);
+        font.draw(batch, "Pulsa ENTER para volver al menú", 180, 220);
 
         batch.end();
     }
