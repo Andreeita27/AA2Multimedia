@@ -9,15 +9,16 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
+import com.svalero.com.manager.ConfigurationManager;
 
-public class InstructionsScreen implements Screen {
+public class ConfigurationScreen implements Screen {
 
     private final MiJuego game;
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
 
-    public InstructionsScreen(MiJuego game) {
+    public ConfigurationScreen(MiJuego game) {
         this.game = game;
     }
 
@@ -34,11 +35,19 @@ public class InstructionsScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            ConfigurationManager.musicEnabled = !ConfigurationManager.musicEnabled;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            ConfigurationManager.soundEnabled = !ConfigurationManager.soundEnabled;
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setScreen(new MainMenuScreen(game));
         }
 
-        Gdx.gl.glClearColor(0.04f, 0.08f, 0.12f, 1f);
+        Gdx.gl.glClearColor(0.06f, 0.06f, 0.10f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
@@ -46,16 +55,12 @@ public class InstructionsScreen implements Screen {
         batch.begin();
 
         font.getData().setScale(1.8f);
-        font.draw(batch, "CÓMO JUGAR", 240, 360);
+        font.draw(batch, "CONFIGURACIÓN", 230, 340);
 
-        font.getData().setScale(1.05f);
-        font.draw(batch, "- Flechas izquierda / derecha para moverte", 120, 290);
-        font.draw(batch, "- ESPACIO para saltar", 120, 255);
-        font.draw(batch, "- Recoge todas las gemas", 120, 220);
-        font.draw(batch, "- Llega a la salida para ganar", 120, 185);
-        font.draw(batch, "- La rana, el ratón y el murciélago hacen daño", 120, 150);
-        font.draw(batch, "- Solo el ratón se puede aplastar saltando encima", 120, 115);
-        font.draw(batch, "- ESC para volver al menú", 120, 70);
+        font.getData().setScale(1.1f);
+        font.draw(batch, "1 - Música: " + (ConfigurationManager.musicEnabled ? "ON" : "OFF"), 220, 250);
+        font.draw(batch, "2 - Sonido: " + (ConfigurationManager.soundEnabled ? "ON" : "OFF"), 220, 210);
+        font.draw(batch, "ESC - Volver al menú", 220, 140);
 
         batch.end();
     }

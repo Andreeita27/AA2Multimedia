@@ -42,6 +42,10 @@ public class MainMenuScreen implements Screen {
             game.setScreen(new InstructionsScreen(game));
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            game.setScreen(new ConfigurationScreen(game));
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
@@ -59,6 +63,7 @@ public class MainMenuScreen implements Screen {
         font.getData().setScale(1.2f);
         font.draw(batch, "1 - Jugar", 280, 270);
         font.draw(batch, "2 - Instrucciones", 280, 230);
+        font.draw(batch, "3 - Configuracion", 280, 190);
         font.draw(batch, "ESC - Salir", 280, 150);
 
         batch.end();
