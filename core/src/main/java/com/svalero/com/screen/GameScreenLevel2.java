@@ -120,7 +120,7 @@ public class GameScreenLevel2 implements Screen {
         // Ranas
         enemies.add(new Enemy(
             frogTexture,
-            300,
+            315,
             Constants.GROUND_Y + 20,
             48,
             48,
@@ -145,13 +145,13 @@ public class GameScreenLevel2 implements Screen {
         // Murciélagos
         enemies.add(new Enemy(
             batTexture,
-            540,
-            390,
+            500,
+            400,
             52,
             40,
-            135f,
-            500,
-            700,
+            115f,
+            460,
+            760,
             Enemy.EnemyType.BAT
         ));
 
