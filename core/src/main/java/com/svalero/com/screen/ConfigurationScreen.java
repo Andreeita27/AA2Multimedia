@@ -18,6 +18,8 @@ public class ConfigurationScreen implements Screen {
     private OrthographicCamera camera;
     private BitmapFont font;
 
+    private int selectedOption;
+
     public ConfigurationScreen(MiJuego game) {
         this.game = game;
     }
@@ -31,21 +33,13 @@ public class ConfigurationScreen implements Screen {
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
+
+        selectedOption = 0;
     }
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            ConfigurationManager.musicEnabled = !ConfigurationManager.musicEnabled;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            ConfigurationManager.soundEnabled = !ConfigurationManager.soundEnabled;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MainMenuScreen(game));
-        }
+        handleInput();
 
         Gdx.gl.glClearColor(0.06f, 0.06f, 0.10f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -58,11 +52,68 @@ public class ConfigurationScreen implements Screen {
         font.draw(batch, "CONFIGURACIÓN", 230, 340);
 
         font.getData().setScale(1.1f);
-        font.draw(batch, "1 - Música: " + (ConfigurationManager.musicEnabled ? "ON" : "OFF"), 220, 250);
-        font.draw(batch, "2 - Sonido: " + (ConfigurationManager.soundEnabled ? "ON" : "OFF"), 220, 210);
-        font.draw(batch, "ESC - Volver al menú", 220, 140);
+        drawOption(
+            (selectedOption == 0 ? "> " : "  ") + "Música: " +
+                (ConfigurationManager.musicEnabled ? "ON" : "OFF"),
+            220, 250
+        );
+
+        drawOption(
+            (selectedOption == 1 ? "> " : "  ") + "Sonido: " +
+                (ConfigurationManager.soundEnabled ? "ON" : "OFF"),
+            220, 210
+        );
+
+        drawOption(
+            (selectedOption == 2 ? "> " : "  ") + "Volver al menú principal",
+            220, 170
+        );
+
+        font.getData().setScale(0.9f);
+        font.draw(batch, "Usa ARRIBA/ABAJO y pulsa ENTER", 210, 110);
+        font.draw(batch, "Pulsa ESC para volver al menú", 225, 80);
 
         batch.end();
+    }
+
+    private void handleInput() {
+        int maxOption = 2;
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            selectedOption--;
+            if (selectedOption < 0) {
+                selectedOption = maxOption;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            selectedOption++;
+            if (selectedOption > maxOption) {
+                selectedOption = 0;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            switch (selectedOption) {
+                case 0:
+                    ConfigurationManager.musicEnabled = !ConfigurationManager.musicEnabled;
+                    break;
+                case 1:
+                    ConfigurationManager.soundEnabled = !ConfigurationManager.soundEnabled;
+                    break;
+                case 2:
+                    game.setScreen(new MainMenuScreen(game));
+                    break;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MainMenuScreen(game));
+        }
+    }
+
+    private void drawOption(String text, float x, float y) {
+        font.draw(batch, text, x, y);
     }
 
     @Override
