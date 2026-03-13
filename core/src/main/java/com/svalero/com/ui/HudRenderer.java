@@ -20,7 +20,7 @@ public class HudRenderer {
         font.setColor(Color.WHITE);
 
         smallFont = new BitmapFont();
-        smallFont.getData().setScale(0.95f);
+        smallFont.getData().setScale(1.15f);
         smallFont.setColor(new Color(0.92f, 0.92f, 0.92f, 1f));
 
         heartIcon = new Texture("hearthud.png");
@@ -46,7 +46,7 @@ public class HudRenderer {
     ) {
         float panelX = cameraLeft + 14;
         float panelY = screenHeight - 108;
-        float panelWidth = 255;
+        float panelWidth = 290;
         float panelHeight = 92;
 
         batch.draw(panelTexture, panelX, panelY, panelWidth, panelHeight);
@@ -55,18 +55,18 @@ public class HudRenderer {
         float bottomRowY = screenHeight - 64;
 
         // Corazón
-        batch.draw(heartIcon, panelX + 12, topRowY - 20, 20, 20);
-        drawTextWithShadow(batch, font, lives + "/" + maxLives, panelX + 40, topRowY);
+        batch.draw(heartIcon, panelX + 12, topRowY - 26, 32, 32);
+        drawTextWithShadow(batch, font, lives + "/" + maxLives, panelX + 55, topRowY);
 
         // Gema
-        batch.draw(gemIcon, panelX + 115, topRowY - 20, 20, 20);
-        drawTextWithShadow(batch, font, collectedGems + "/" + totalGems, panelX + 145, topRowY);
+        batch.draw(gemIcon, panelX + 140, topRowY - 26, 32, 32);
+        drawTextWithShadow(batch, font, collectedGems + "/" + totalGems, panelX + 185, topRowY);
 
         // Puntos
-        drawTextWithShadow(batch, smallFont, "Puntos: " + score, panelX + 14, bottomRowY);
+        drawTextWithShadow(batch, smallFont, "Puntos: " + score, panelX + 16, bottomRowY);
 
         // Nivel
-        drawTextWithShadow(batch, smallFont, "Nivel " + level, panelX + 150, bottomRowY);
+        drawTextWithShadow(batch, smallFont, "Nivel " + level, panelX + 170, bottomRowY);
     }
 
     private void drawTextWithShadow(SpriteBatch batch, BitmapFont font, String text, float x, float y) {
