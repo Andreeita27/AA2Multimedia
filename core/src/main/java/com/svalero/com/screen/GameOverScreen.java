@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
+import com.svalero.com.manager.SoundManager;
 
 public class GameOverScreen implements Screen {
 
@@ -30,6 +31,8 @@ public class GameOverScreen implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(2f);
+
+        SoundManager.playLose();
     }
 
     @Override

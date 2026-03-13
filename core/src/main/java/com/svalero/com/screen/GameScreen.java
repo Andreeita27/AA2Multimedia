@@ -17,6 +17,7 @@ import com.svalero.com.domain.Collectible;
 import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
+import com.svalero.com.manager.SoundManager;
 import com.svalero.com.util.Constants;
 
 public class GameScreen implements Screen {
@@ -218,6 +219,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && onGround) {
             playerVelocity.y = Constants.JUMP_FORCE;
             onGround = false;
+            SoundManager.playJump();
         }
     }
 
@@ -299,6 +301,7 @@ public class GameScreen implements Screen {
             if (!collectible.isCollected() && collectible.getBounds().overlaps(playerBounds)) {
                 collectible.collect();
                 score += collectible.getPoints();
+                SoundManager.playGem();
             }
         }
     }
@@ -334,6 +337,7 @@ public class GameScreen implements Screen {
                         onGround = false;
 
                         score += 25;
+                        SoundManager.playStomp();
 
                         message = "¡Ratón aplastado!";
                         messageTimer = 1.2f;
@@ -347,6 +351,7 @@ public class GameScreen implements Screen {
                 }
 
                 lives--;
+                SoundManager.playHit();
                 invulnerableTimer = 1.5f;
 
                 message = "¡Ay! Te han golpeado";
@@ -377,6 +382,7 @@ public class GameScreen implements Screen {
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
             if (allGemsCollected()) {
+                SoundManager.playWin();
                 game.setScreen(new VictoryScreen(game, score, lives, true, 2));
             } else {
                 int remaining = countRemainingGems();
