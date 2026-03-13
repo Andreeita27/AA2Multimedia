@@ -71,7 +71,6 @@ public class ConfigurationScreen implements Screen {
 
         font.getData().setScale(0.9f);
         font.draw(batch, "Usa ARRIBA/ABAJO y pulsa ENTER", 210, 110);
-        font.draw(batch, "Pulsa ESC para volver al menú", 225, 80);
 
         batch.end();
     }
