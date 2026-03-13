@@ -17,6 +17,8 @@ public class MainMenuScreen implements Screen {
     private OrthographicCamera camera;
     private BitmapFont font;
 
+    private int selectedOption;
+
     public MainMenuScreen(MiJuego game) {
         this.game = game;
     }
@@ -30,25 +32,13 @@ public class MainMenuScreen implements Screen {
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
+
+        selectedOption = 0;
     }
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            game.setScreen(new GameScreen(game));
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            game.setScreen(new InstructionsScreen(game));
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            game.setScreen(new ConfigurationScreen(game));
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-        }
+        handleInput();
 
         Gdx.gl.glClearColor(0.08f, 0.08f, 0.12f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -61,12 +51,58 @@ public class MainMenuScreen implements Screen {
         font.draw(batch, "ADVENTURER PLATFORM", 170, 360);
 
         font.getData().setScale(1.2f);
-        font.draw(batch, "1 - Jugar", 280, 270);
-        font.draw(batch, "2 - Instrucciones", 280, 230);
-        font.draw(batch, "3 - Configuracion", 280, 190);
-        font.draw(batch, "ESC - Salir", 280, 150);
+        drawOption((selectedOption == 0 ? "> " : "  ") + "Jugar", 280, 270);
+        drawOption((selectedOption == 1 ? "> " : "  ") + "Instrucciones", 280, 230);
+        drawOption((selectedOption == 2 ? "> " : "  ") + "Configuración", 280, 190);
+        drawOption((selectedOption == 3 ? "> " : "  ") + "Salir", 280, 150);
+
+        font.getData().setScale(0.9f);
+        font.draw(batch, "Usa ARRIBA/ABAJO y pulsa ENTER", 235, 95);
 
         batch.end();
+    }
+
+    private void handleInput() {
+        int maxOption = 3;
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            selectedOption--;
+            if (selectedOption < 0) {
+                selectedOption = maxOption;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            selectedOption++;
+            if (selectedOption > maxOption) {
+                selectedOption = 0;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            switch (selectedOption) {
+                case 0:
+                    game.setScreen(new GameScreen(game));
+                    break;
+                case 1:
+                    game.setScreen(new InstructionsScreen(game));
+                    break;
+                case 2:
+                    game.setScreen(new ConfigurationScreen(game));
+                    break;
+                case 3:
+                    Gdx.app.exit();
+                    break;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+        }
+    }
+
+    private void drawOption(String text, float x, float y) {
+        font.draw(batch, text, x, y);
     }
 
     @Override
