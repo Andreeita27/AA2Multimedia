@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
+import com.svalero.com.manager.SoundManager;
 
 public class MainMenuScreen implements Screen {
 
@@ -25,6 +26,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
+        SoundManager.resumeMusic();
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();

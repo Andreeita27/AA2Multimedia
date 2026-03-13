@@ -32,6 +32,7 @@ public class GameOverScreen implements Screen {
         font.setColor(Color.WHITE);
         font.getData().setScale(2f);
 
+        SoundManager.stopMusic();
         SoundManager.playLose();
     }
 

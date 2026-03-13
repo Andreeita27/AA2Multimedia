@@ -15,6 +15,8 @@ public class SoundManager {
 
     private static Music backgroundMusic;
 
+    private static boolean musicPausedManually = false;
+
     private SoundManager() {
     }
 
@@ -28,7 +30,7 @@ public class SoundManager {
 
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/background.wav"));
         backgroundMusic.setLooping(true);
-        backgroundMusic.setVolume(0.4f);
+        backgroundMusic.setVolume(0.18f);
     }
 
     public static void playJump() {
@@ -51,24 +53,28 @@ public class SoundManager {
 
     public static void playStomp() {
         if (ConfigurationManager.soundEnabled && stompSound != null) {
-            stompSound.play(0.8f);
+            stompSound.play(1.0f);
         }
     }
 
     public static void playWin() {
         if (ConfigurationManager.soundEnabled && winSound != null) {
-            winSound.play(0.9f);
+            winSound.play(4.0f);
         }
     }
 
     public static void playLose() {
         if (ConfigurationManager.soundEnabled && loseSound != null) {
-            loseSound.play(0.9f);
+            loseSound.play(4.0f);
         }
     }
 
     public static void updateMusic() {
         if (backgroundMusic == null) {
+            return;
+        }
+
+        if (musicPausedManually) {
             return;
         }
 
@@ -82,9 +88,15 @@ public class SoundManager {
     }
 
     public static void stopMusic() {
+        musicPausedManually = true;
         if (backgroundMusic != null) {
             backgroundMusic.stop();
         }
+    }
+
+    public static void resumeMusic() {
+        musicPausedManually = false;
+        updateMusic();
     }
 
     public static void dispose() {
