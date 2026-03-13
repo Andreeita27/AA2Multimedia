@@ -18,6 +18,7 @@ import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
 import com.svalero.com.manager.SoundManager;
+import com.svalero.com.ui.HudRenderer;
 import com.svalero.com.util.Constants;
 
 public class GameScreen implements Screen {
@@ -59,6 +60,8 @@ public class GameScreen implements Screen {
 
     private float invulnerableTimer;
 
+    private HudRenderer hudRenderer;
+
     public GameScreen(MiJuego game) {
         this(game, 0, Constants.INITIAL_LIVES);
     }
@@ -72,6 +75,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         SoundManager.resumeMusic();
+        hudRenderer = new HudRenderer();
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();
@@ -474,18 +478,17 @@ public class GameScreen implements Screen {
     }
 
     private void drawHud() {
-        float cameraLeft = camera.position.x - Gdx.graphics.getWidth() / 2f;
-        float hudX = cameraLeft + 20;
-        float hudY = Gdx.graphics.getHeight() - 20;
-
-        font.draw(batch, "Nivel: 1", hudX, hudY);
-        font.draw(batch, "Vidas: " + lives, hudX, hudY - 30);
-        font.draw(batch, "Puntos: " + score, hudX, hudY - 60);
-        font.draw(batch, "Gemas: " + (totalGems - countRemainingGems()) + "/" + totalGems, hudX, hudY - 90);
-
-        if (!message.isEmpty()) {
-            font.draw(batch, message, cameraLeft + 260, Gdx.graphics.getHeight() - 50);
-        }
+        hudRenderer.draw(
+            batch,
+            camera.position.x - Gdx.graphics.getWidth() / 2f,
+            Gdx.graphics.getHeight(),
+            lives,
+            Constants.INITIAL_LIVES,
+            totalGems - countRemainingGems(),
+            totalGems,
+            score,
+            1
+        );
     }
 
     @Override
@@ -507,6 +510,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        hudRenderer.dispose();
         batch.dispose();
         font.dispose();
         background.dispose();
