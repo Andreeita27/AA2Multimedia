@@ -19,7 +19,7 @@ import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
 import com.svalero.com.util.Constants;
 
-public class GameScreen implements Screen {
+public class GameScreenLevel2 implements Screen {
 
     private final MiJuego game;
     private final int initialScore;
@@ -58,11 +58,7 @@ public class GameScreen implements Screen {
 
     private float invulnerableTimer;
 
-    public GameScreen(MiJuego game) {
-        this(game, 0, Constants.INITIAL_LIVES);
-    }
-
-    public GameScreen(MiJuego game, int initialScore, int initialLives) {
+    public GameScreenLevel2(MiJuego game, int initialScore, int initialLives) {
         this.game = game;
         this.initialScore = initialScore;
         this.initialLives = initialLives;
@@ -78,12 +74,12 @@ public class GameScreen implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        background = new Texture(Gdx.files.internal("grassbackground.png"));
+        background = new Texture(Gdx.files.internal("sandbackground.png"));
         player = new Texture(Gdx.files.internal("player.png"));
-        ground = new Texture(Gdx.files.internal("grassground.png"));
-        platformTexture = new Texture(Gdx.files.internal("grassplatform.png"));
-        gemTexture = new Texture(Gdx.files.internal("redgem.png"));
-        exitTexture = new Texture(Gdx.files.internal("redflag.png"));
+        ground = new Texture(Gdx.files.internal("sandground.png"));
+        platformTexture = new Texture(Gdx.files.internal("sandplatform.png"));
+        gemTexture = new Texture(Gdx.files.internal("greengem.png"));
+        exitTexture = new Texture(Gdx.files.internal("greenflag.png"));
         frogTexture = new Texture(Gdx.files.internal("frog.png"));
         batTexture = new Texture(Gdx.files.internal("bat.png"));
         mouseTexture = new Texture(Gdx.files.internal("mouse.png"));
@@ -102,70 +98,84 @@ public class GameScreen implements Screen {
         collectibles = new Array<>();
         enemies = new Array<>();
 
-        platforms.add(new Platform(platformTexture, 220, 160, 140, 40));
-        platforms.add(new Platform(platformTexture, 430, 240, 140, 40));
-        platforms.add(new Platform(platformTexture, 700, 190, 140, 40));
-        platforms.add(new Platform(platformTexture, 930, 300, 140, 40));
-        platforms.add(new Platform(platformTexture, 1160, 220, 140, 40));
+        platforms.add(new Platform(platformTexture, 180, 150, 130, 40));
+        platforms.add(new Platform(platformTexture, 360, 240, 130, 40));
+        platforms.add(new Platform(platformTexture, 560, 330, 130, 40));
+        platforms.add(new Platform(platformTexture, 760, 250, 130, 40));
+        platforms.add(new Platform(platformTexture, 960, 170, 130, 40));
+        platforms.add(new Platform(platformTexture, 1130, 270, 130, 40));
 
-        collectibles.add(new Collectible(gemTexture, 260, 210, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 470, 290, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 735, 240, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 970, 350, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 1200, 270, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 220, 200, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 400, 290, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 600, 380, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 800, 300, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 1000, 220, 32, 32, Constants.POINTS_PER_GEM));
+        collectibles.add(new Collectible(gemTexture, 1170, 320, 32, 32, Constants.POINTS_PER_GEM));
 
         totalGems = collectibles.size;
 
-        levelExit = new LevelExit(exitTexture, 1320, Constants.GROUND_Y, 70, 100);
+        levelExit = new LevelExit(exitTexture, 1290, Constants.GROUND_Y, 70, 100);
 
         // Ranas
         enemies.add(new Enemy(
             frogTexture,
-            520,
+            300,
             Constants.GROUND_Y + 20,
             48,
             48,
-            90f,
+            100f,
             Constants.GROUND_Y + 20,
-            Constants.GROUND_Y + 120,
+            Constants.GROUND_Y + 130,
             Enemy.EnemyType.FROG
         ));
 
         enemies.add(new Enemy(
             frogTexture,
-            1120,
+            900,
             Constants.GROUND_Y + 20,
             48,
             48,
-            90f,
+            100f,
             Constants.GROUND_Y + 20,
-            Constants.GROUND_Y + 120,
+            Constants.GROUND_Y + 130,
             Enemy.EnemyType.FROG
         ));
 
         // Murciélagos
         enemies.add(new Enemy(
             batTexture,
-            940,
-            360,
+            540,
+            390,
             52,
             40,
-            120f,
-            900,
-            1120,
+            135f,
+            500,
+            700,
+            Enemy.EnemyType.BAT
+        ));
+
+        enemies.add(new Enemy(
+            batTexture,
+            1020,
+            350,
+            52,
+            40,
+            135f,
+            980,
+            1200,
             Enemy.EnemyType.BAT
         ));
 
         // Ratones
         enemies.add(new Enemy(
             mouseTexture,
-            710,
-            230,
+            760,
+            290,
             40,
             28,
-            170f,
-            700,
-            840,
+            180f,
+            760,
+            890,
             Enemy.EnemyType.MOUSE
         ));
     }
@@ -377,7 +387,7 @@ public class GameScreen implements Screen {
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
             if (allGemsCollected()) {
-                game.setScreen(new GameScreenLevel2(game, score, lives));
+                game.setScreen(new VictoryScreen(game));
             } else {
                 int remaining = countRemainingGems();
                 message = "Te faltan " + remaining + " gemas";
@@ -471,7 +481,7 @@ public class GameScreen implements Screen {
         float hudX = cameraLeft + 20;
         float hudY = Gdx.graphics.getHeight() - 20;
 
-        font.draw(batch, "Nivel: 1", hudX, hudY);
+        font.draw(batch, "Nivel: 2", hudX, hudY);
         font.draw(batch, "Vidas: " + lives, hudX, hudY - 30);
         font.draw(batch, "Puntos: " + score, hudX, hudY - 60);
         font.draw(batch, "Gemas: " + (totalGems - countRemainingGems()) + "/" + totalGems, hudX, hudY - 90);
