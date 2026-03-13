@@ -13,9 +13,12 @@ import com.svalero.com.MiJuego;
 public class InstructionsScreen implements Screen {
 
     private final MiJuego game;
+
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
+
+    private int selectedOption;
 
     public InstructionsScreen(MiJuego game) {
         this.game = game;
@@ -23,6 +26,7 @@ public class InstructionsScreen implements Screen {
 
     @Override
     public void show() {
+
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();
@@ -30,15 +34,16 @@ public class InstructionsScreen implements Screen {
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
+
+        selectedOption = 0;
     }
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MainMenuScreen(game));
-        }
 
-        Gdx.gl.glClearColor(0.04f, 0.08f, 0.12f, 1f);
+        handleInput();
+
+        Gdx.gl.glClearColor(0.08f, 0.08f, 0.12f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
@@ -46,18 +51,43 @@ public class InstructionsScreen implements Screen {
         batch.begin();
 
         font.getData().setScale(1.8f);
-        font.draw(batch, "CÓMO JUGAR", 240, 360);
+        font.draw(batch, "CÓMO JUGAR", 250, 360);
 
-        font.getData().setScale(1.05f);
-        font.draw(batch, "- Flechas izquierda / derecha para moverte", 120, 290);
-        font.draw(batch, "- ESPACIO para saltar", 120, 255);
-        font.draw(batch, "- Recoge todas las gemas", 120, 220);
-        font.draw(batch, "- Llega a la salida para ganar", 120, 185);
-        font.draw(batch, "- La rana, el ratón y el murciélago hacen daño", 120, 150);
-        font.draw(batch, "- Solo el ratón se puede aplastar saltando encima", 120, 115);
-        font.draw(batch, "- ESC para volver al menú", 120, 70);
+        font.getData().setScale(1f);
+
+        font.draw(batch, "Mueve al personaje con las flechas izquierda y derecha.", 120, 300);
+        font.draw(batch, "Salta con la barra espaciadora.", 120, 270);
+        font.draw(batch, "Recoge todas las gemas para poder terminar el nivel.", 120, 240);
+        font.draw(batch, "Evita enemigos o salta sobre los ratones para eliminarlos.", 120, 210);
+
+        font.getData().setScale(1.2f);
+
+        drawOption(
+            (selectedOption == 0 ? "> " : "  ") + "Volver al menú principal",
+            220,
+            150
+        );
+
+        font.getData().setScale(0.9f);
+        font.draw(batch, "Usa ARRIBA/ABAJO y pulsa ENTER", 235, 90);
 
         batch.end();
+    }
+
+    private void handleInput() {
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) ||
+            Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            selectedOption = 0;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            game.setScreen(new MainMenuScreen(game));
+        }
+    }
+
+    private void drawOption(String text, float x, float y) {
+        font.draw(batch, text, x, y);
     }
 
     @Override
@@ -65,17 +95,9 @@ public class InstructionsScreen implements Screen {
         camera.setToOrtho(false, width, height);
     }
 
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
-    }
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 
     @Override
     public void dispose() {
