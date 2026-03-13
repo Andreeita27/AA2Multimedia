@@ -67,6 +67,7 @@ public class GameScreenLevel2 implements Screen {
 
     @Override
     public void show() {
+        SoundManager.resumeMusic();
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();
