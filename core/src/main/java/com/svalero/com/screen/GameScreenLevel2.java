@@ -387,7 +387,7 @@ public class GameScreenLevel2 implements Screen {
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
             if (allGemsCollected()) {
-                game.setScreen(new VictoryScreen(game));
+                game.setScreen(new VictoryScreen(game, score, lives, false, -1));
             } else {
                 int remaining = countRemainingGems();
                 message = "Te faltan " + remaining + " gemas";
