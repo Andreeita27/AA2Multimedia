@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -32,7 +34,15 @@ public class GameScreenLevel2 implements Screen {
     private BitmapFont font;
 
     private Texture background;
-    private Texture player;
+
+    private Texture playerSheet;
+    private Animation<TextureRegion> idleAnimation;
+    private Animation<TextureRegion> runAnimation;
+    private TextureRegion jumpFrame;
+    private TextureRegion fallFrame;
+    private float stateTime;
+    private boolean facingRight;
+
     private Texture ground;
     private Texture platformTexture;
     private Texture gemTexture;
@@ -81,7 +91,12 @@ public class GameScreenLevel2 implements Screen {
         font.setColor(Color.WHITE);
 
         background = new Texture(Gdx.files.internal("sandbackground.png"));
-        player = new Texture(Gdx.files.internal("player.png"));
+
+        playerSheet = new Texture(Gdx.files.internal("playersheet.png"));
+        loadPlayerAnimations();
+        stateTime = 0f;
+        facingRight = true;
+
         ground = new Texture(Gdx.files.internal("sandground.png"));
         platformTexture = new Texture(Gdx.files.internal("sandplatform.png"));
         gemTexture = new Texture(Gdx.files.internal("greengem.png"));
@@ -186,8 +201,50 @@ public class GameScreenLevel2 implements Screen {
         ));
     }
 
+    private void loadPlayerAnimations() {
+        TextureRegion[][] frames = TextureRegion.split(playerSheet, 96, 128);
+
+        TextureRegion idle = new TextureRegion(frames[0][0]);     // idle
+        TextureRegion jump = new TextureRegion(frames[0][1]);     // jump
+        TextureRegion fall = new TextureRegion(frames[0][2]);     // fall
+
+        TextureRegion run0 = new TextureRegion(frames[2][6]);     // run0
+        TextureRegion run1 = new TextureRegion(frames[2][7]);     // run1
+        TextureRegion run2 = new TextureRegion(frames[2][8]);     // run2
+
+        idleAnimation = new Animation<>(0.2f, idle);
+        runAnimation = new Animation<>(0.12f, run0, run1, run2);
+        runAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        jumpFrame = jump;
+        fallFrame = fall;
+    }
+
+    private TextureRegion getCurrentPlayerFrame() {
+        TextureRegion currentFrame;
+
+        if (!onGround) {
+            if (playerVelocity.y > 0) {
+                currentFrame = new TextureRegion(jumpFrame);
+            } else {
+                currentFrame = new TextureRegion(fallFrame);
+            }
+        } else if (playerVelocity.x != 0) {
+            currentFrame = new TextureRegion(runAnimation.getKeyFrame(stateTime, true));
+        } else {
+            currentFrame = new TextureRegion(idleAnimation.getKeyFrame(stateTime, true));
+        }
+
+        if ((facingRight && currentFrame.isFlipX()) || (!facingRight && !currentFrame.isFlipX())) {
+            currentFrame.flip(true, false);
+        }
+
+        return currentFrame;
+    }
+
     @Override
     public void render(float delta) {
+        stateTime += delta;
         handleInput();
         applyGravity(delta);
         updatePlayer(delta);
@@ -213,7 +270,8 @@ public class GameScreenLevel2 implements Screen {
         drawCollectibles();
         drawEnemies();
         levelExit.draw(batch);
-        batch.draw(player, playerPosition.x, playerPosition.y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT);
+        TextureRegion currentFrame = getCurrentPlayerFrame();
+        batch.draw(currentFrame, playerPosition.x, playerPosition.y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT);
 
         drawHud();
 
@@ -225,10 +283,12 @@ public class GameScreenLevel2 implements Screen {
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             playerVelocity.x = -Constants.PLAYER_SPEED;
+            facingRight = false;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             playerVelocity.x = Constants.PLAYER_SPEED;
+            facingRight = true;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && onGround) {
@@ -523,7 +583,7 @@ public class GameScreenLevel2 implements Screen {
         batch.dispose();
         font.dispose();
         background.dispose();
-        player.dispose();
+        playerSheet.dispose();
         ground.dispose();
         platformTexture.dispose();
         gemTexture.dispose();
