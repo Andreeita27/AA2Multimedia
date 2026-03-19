@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -45,9 +42,13 @@ public class GameScreen implements Screen {
     private Texture platformTexture;
     private Texture gemTexture;
     private Texture exitTexture;
-    private Texture frogTexture;
-    private Texture batTexture;
-    private Texture mouseTexture;
+    private Texture enemySheet;
+    private Animation<TextureRegion> batAnimation;
+    private Animation<TextureRegion> mouseAnimation;
+    private TextureRegion mouseDeadFrame;
+    private TextureRegion frogIdleFrame;
+    private TextureRegion frogLeapFrame;
+
 
     private Vector2 playerPosition;
     private Vector2 playerVelocity;
@@ -103,9 +104,8 @@ public class GameScreen implements Screen {
         platformTexture = new Texture(Gdx.files.internal("grassplatform.png"));
         gemTexture = new Texture(Gdx.files.internal("redgem.png"));
         exitTexture = new Texture(Gdx.files.internal("redflag.png"));
-        frogTexture = new Texture(Gdx.files.internal("frog.png"));
-        batTexture = new Texture(Gdx.files.internal("bat.png"));
-        mouseTexture = new Texture(Gdx.files.internal("mouse.png"));
+        enemySheet = new Texture(Gdx.files.internal("enemiessheet.png"));
+        loadEnemyAnimations();
 
         playerPosition = new Vector2(40, Constants.GROUND_Y);
         playerVelocity = new Vector2(0, 0);
@@ -137,9 +137,10 @@ public class GameScreen implements Screen {
 
         levelExit = new LevelExit(exitTexture, 1320, Constants.GROUND_Y, 70, 100);
 
+        Texture placeholderEnemyTexture = enemySheet;
         // Ranas
         enemies.add(new Enemy(
-            frogTexture,
+            placeholderEnemyTexture,
             520,
             Constants.GROUND_Y + 20,
             48,
@@ -151,7 +152,7 @@ public class GameScreen implements Screen {
         ));
 
         enemies.add(new Enemy(
-            frogTexture,
+            placeholderEnemyTexture,
             1120,
             Constants.GROUND_Y + 20,
             48,
@@ -164,7 +165,7 @@ public class GameScreen implements Screen {
 
         // Murciélagos
         enemies.add(new Enemy(
-            batTexture,
+            placeholderEnemyTexture,
             940,
             360,
             52,
@@ -177,7 +178,7 @@ public class GameScreen implements Screen {
 
         // Ratones
         enemies.add(new Enemy(
-            mouseTexture,
+            placeholderEnemyTexture,
             710,
             230,
             40,
@@ -228,6 +229,24 @@ public class GameScreen implements Screen {
         }
 
         return currentFrame;
+    }
+
+    private void loadEnemyAnimations() {
+        TextureRegion batFrame1 = new TextureRegion(enemySheet, 71, 235, 70, 47);
+        TextureRegion batFrame2 = new TextureRegion(enemySheet, 0, 0, 88, 37);
+
+        batAnimation = new Animation<>(0.15f, batFrame1, batFrame2);
+        batAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        TextureRegion mouseFrame1 = new TextureRegion(enemySheet, 197, 475, 59, 35);
+        TextureRegion mouseFrame2 = new TextureRegion(enemySheet, 256, 475, 58, 35);
+        mouseDeadFrame = new TextureRegion(enemySheet, 202, 206, 59, 35);
+
+        mouseAnimation = new Animation<>(0.18f, mouseFrame1, mouseFrame2);
+        mouseAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        frogIdleFrame = new TextureRegion(enemySheet, 257, 45, 58, 39);
+        frogLeapFrame = new TextureRegion(enemySheet, 197, 336, 61, 54);
     }
 
     @Override
@@ -531,7 +550,42 @@ public class GameScreen implements Screen {
 
     private void drawEnemies() {
         for (Enemy enemy : enemies) {
-            enemy.draw(batch);
+            Rectangle bounds = enemy.getBounds();
+            float x = bounds.x;
+            float y = bounds.y;
+            float width = bounds.width;
+            float height = bounds.height;
+
+            switch (enemy.getType()) {
+                case BAT -> {
+                    TextureRegion frame = new TextureRegion(batAnimation.getKeyFrame(stateTime, true));
+                    batch.draw(frame, x, y, width, height);
+                }
+
+                case MOUSE -> {
+                    TextureRegion frame;
+
+                    if (enemy.isAlive()) {
+                        frame = new TextureRegion(mouseAnimation.getKeyFrame(stateTime, true));
+                    } else {
+                        frame = new TextureRegion(mouseDeadFrame);
+                    }
+
+                    batch.draw(frame, x, y, width, height);
+                }
+
+                case FROG -> {
+                    TextureRegion frame;
+
+                    if (y > Constants.GROUND_Y + 35) {
+                        frame = new TextureRegion(frogLeapFrame);
+                    } else {
+                        frame = new TextureRegion(frogIdleFrame);
+                    }
+
+                    batch.draw(frame, x, y, width, height);
+                }
+            }
         }
     }
 
@@ -577,8 +631,6 @@ public class GameScreen implements Screen {
         platformTexture.dispose();
         gemTexture.dispose();
         exitTexture.dispose();
-        frogTexture.dispose();
-        batTexture.dispose();
-        mouseTexture.dispose();
+        enemySheet.dispose();
     }
 }
