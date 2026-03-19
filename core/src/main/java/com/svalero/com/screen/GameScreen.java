@@ -63,6 +63,8 @@ public class GameScreen implements Screen {
     private int score;
     private int totalGems;
     private int lives;
+    private int collectedGems;
+    private int killedMice;
 
     private String message;
     private float messageTimer;
@@ -116,6 +118,8 @@ public class GameScreen implements Screen {
         message = "";
         messageTimer = 0f;
         invulnerableTimer = 0f;
+        collectedGems = 0;
+        killedMice = 0;
 
         platforms = new Array<>();
         collectibles = new Array<>();
@@ -382,8 +386,12 @@ public class GameScreen implements Screen {
         for (Collectible collectible : collectibles) {
             if (!collectible.isCollected() && collectible.getBounds().overlaps(playerBounds)) {
                 collectible.collect();
-                score += collectible.getPoints();
+                collectedGems++;
+                score += 10;
                 SoundManager.playGem();
+
+                message = "¡Gema recogida! +10";
+                messageTimer = 1f;
             }
         }
     }
@@ -414,6 +422,7 @@ public class GameScreen implements Screen {
 
                     if (falling && hittingFromAbove) {
                         enemy.kill();
+                        killedMice++;
 
                         playerVelocity.y = Constants.JUMP_FORCE * 0.6f;
                         onGround = false;
@@ -463,14 +472,8 @@ public class GameScreen implements Screen {
         );
 
         if (playerBounds.overlaps(levelExit.getBounds())) {
-            if (allGemsCollected()) {
-                SoundManager.playWin();
-                game.setScreen(new VictoryScreen(game, score, lives, true, 2));
-            } else {
-                int remaining = countRemainingGems();
-                message = "Te faltan " + remaining + " gemas";
-                messageTimer = 2f;
-            }
+            SoundManager.playWin();
+            game.setScreen(new VictoryScreen(game, score, lives, true, 2));
         }
     }
 

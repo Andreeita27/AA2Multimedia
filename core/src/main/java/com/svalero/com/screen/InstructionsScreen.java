@@ -55,10 +55,10 @@ public class InstructionsScreen implements Screen {
 
         font.getData().setScale(1f);
 
-        font.draw(batch, "Mueve al personaje con las flechas izquierda y derecha.", 120, 300);
+        font.draw(batch, "Mueve al personaje con las flechas izquierda y derecha para llegar a la meta.", 120, 300);
         font.draw(batch, "Salta con la barra espaciadora.", 120, 270);
-        font.draw(batch, "Recoge todas las gemas para poder terminar el nivel.", 120, 240);
-        font.draw(batch, "Evita enemigos o salta sobre los ratones para eliminarlos.", 120, 210);
+        font.draw(batch, "Recoge gemas: +10 puntos.", 120, 240);
+        font.draw(batch, "Evita enemigos o salta sobre los ratones para eliminarlos y consigue +25 puntos.", 120, 210);
 
         font.getData().setScale(1.2f);
 
