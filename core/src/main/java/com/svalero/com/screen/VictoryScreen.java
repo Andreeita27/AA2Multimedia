@@ -138,10 +138,13 @@ public class VictoryScreen implements Screen {
 
         } else {
             // PANTALLA FINAL CON RANKING
+            int visibleScores = Math.min(topScores.size, 5);
+
             float rankingX = panelX + 90;
-            float rankingY = panelY + 105;
+            float rankingY = panelY + 70;
             float rankingWidth = panelWidth - 180;
-            float rankingHeight = 190;
+            float rowHeight = 24f;
+            float rankingHeight = 80 + visibleScores * rowHeight;
 
             drawRect(rankingX, rankingY, rankingWidth, rankingHeight, new Color(1f, 1f, 1f, 0.06f));
             drawBorder(rankingX, rankingY, rankingWidth, rankingHeight, new Color(0.75f, 0.65f, 0.25f, 0.8f));
@@ -157,7 +160,7 @@ public class VictoryScreen implements Screen {
 
             float lineY = rankingY + rankingHeight - 78;
 
-            for (int i = 0; i < topScores.size; i++) {
+            for (int i = 0; i < visibleScores; i++) {
                 Score entry = topScores.get(i);
 
                 font.setColor(Color.WHITE);
@@ -166,11 +169,11 @@ public class VictoryScreen implements Screen {
                 font.setColor(new Color(1f, 0.92f, 0.45f, 1f));
                 font.draw(batch, String.valueOf(entry.getScore()), rankingX + rankingWidth - 85, lineY);
 
-                lineY -= 24;
+                lineY -= rowHeight;
             }
 
             drawMenuOption((selectedOption == 0 ? "> " : "  ") + "Salir al menú principal",
-                panelX + 135, panelY + 42, true);
+                panelX + 135, panelY + 30, true);
         }
 
         batch.end();
