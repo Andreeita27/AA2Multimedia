@@ -16,6 +16,7 @@ import com.svalero.com.domain.Collectible;
 import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
+import com.svalero.com.manager.LevelManager;
 import com.svalero.com.manager.SoundManager;
 import com.svalero.com.ui.HudRenderer;
 import com.svalero.com.util.Constants;
@@ -71,6 +72,7 @@ public class GameScreenLevel2 implements Screen {
     private float messageTimer;
 
     private float invulnerableTimer;
+    private LevelManager levelManager;
 
     private HudRenderer hudRenderer;
 
@@ -92,18 +94,21 @@ public class GameScreenLevel2 implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        background = new Texture(Gdx.files.internal("sandbackground.png"));
-
         playerSheet = new Texture(Gdx.files.internal("playersheet.png"));
         loadPlayerAnimations();
         stateTime = 0f;
         facingRight = true;
 
-        ground = new Texture(Gdx.files.internal("sandground.png"));
-        platformTexture = new Texture(Gdx.files.internal("sandplatform.png"));
-        gemTexture = new Texture(Gdx.files.internal("greengem.png"));
-        exitTexture = new Texture(Gdx.files.internal("greenflag.png"));
-        enemySheet = new Texture(Gdx.files.internal("enemiessheet.png"));
+        levelManager = new LevelManager(2);
+        levelManager.loadLevel();
+
+        background = levelManager.getBackground();
+        ground = levelManager.getGround();
+        platformTexture = levelManager.getPlatformTexture();
+        gemTexture = levelManager.getGemTexture();
+        exitTexture = levelManager.getExitTexture();
+        enemySheet = levelManager.getEnemyTexture();
+
         loadEnemyAnimations();
 
         playerPosition = new Vector2(40, Constants.GROUND_Y);
@@ -118,91 +123,11 @@ public class GameScreenLevel2 implements Screen {
         collectedGems = 0;
         killedMice = 0;
 
-        platforms = new Array<>();
-        collectibles = new Array<>();
-        enemies = new Array<>();
-
-        platforms.add(new Platform(platformTexture, 180, 150, 130, 40));
-        platforms.add(new Platform(platformTexture, 360, 240, 130, 40));
-        platforms.add(new Platform(platformTexture, 560, 330, 130, 40));
-        platforms.add(new Platform(platformTexture, 760, 250, 130, 40));
-        platforms.add(new Platform(platformTexture, 960, 170, 130, 40));
-        platforms.add(new Platform(platformTexture, 1130, 270, 130, 40));
-
-        collectibles.add(new Collectible(gemTexture, 220, 200, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 400, 290, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 600, 380, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 800, 300, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 1000, 220, 32, 32, Constants.POINTS_PER_GEM));
-        collectibles.add(new Collectible(gemTexture, 1170, 320, 32, 32, Constants.POINTS_PER_GEM));
-
-        totalGems = collectibles.size;
-
-        levelExit = new LevelExit(exitTexture, 1290, Constants.GROUND_Y, 70, 100);
-
-        Texture placeholderEnemyTexture = enemySheet;
-        // Ranas
-        enemies.add(new Enemy(
-            placeholderEnemyTexture,
-            315,
-            Constants.GROUND_Y + 20,
-            48,
-            48,
-            100f,
-            Constants.GROUND_Y + 20,
-            Constants.GROUND_Y + 130,
-            Enemy.EnemyType.FROG
-        ));
-
-        enemies.add(new Enemy(
-            placeholderEnemyTexture,
-            900,
-            Constants.GROUND_Y + 20,
-            48,
-            48,
-            100f,
-            Constants.GROUND_Y + 20,
-            Constants.GROUND_Y + 130,
-            Enemy.EnemyType.FROG
-        ));
-
-        // Murciélagos
-        enemies.add(new Enemy(
-            placeholderEnemyTexture,
-            500,
-            400,
-            52,
-            40,
-            115f,
-            460,
-            760,
-            Enemy.EnemyType.BAT
-        ));
-
-        enemies.add(new Enemy(
-            placeholderEnemyTexture,
-            1020,
-            350,
-            52,
-            40,
-            135f,
-            980,
-            1200,
-            Enemy.EnemyType.BAT
-        ));
-
-        // Ratones
-        enemies.add(new Enemy(
-            placeholderEnemyTexture,
-            760,
-            290,
-            40,
-            28,
-            180f,
-            760,
-            890,
-            Enemy.EnemyType.MOUSE
-        ));
+        platforms = levelManager.getPlatforms();
+        collectibles = levelManager.getCollectibles();
+        enemies = levelManager.getEnemies();
+        levelExit = levelManager.getLevelExit();
+        totalGems = levelManager.getTotalGems();
     }
 
     private void loadPlayerAnimations() {
@@ -636,14 +561,13 @@ public class GameScreenLevel2 implements Screen {
 
     @Override
     public void dispose() {
+        hudRenderer.dispose();
         batch.dispose();
         font.dispose();
-        background.dispose();
         playerSheet.dispose();
-        ground.dispose();
-        platformTexture.dispose();
-        gemTexture.dispose();
-        exitTexture.dispose();
-        enemySheet.dispose();
+
+        if (levelManager != null) {
+            levelManager.dispose();
+        }
     }
 }
