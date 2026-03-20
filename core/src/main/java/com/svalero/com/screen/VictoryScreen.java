@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.svalero.com.MiJuego;
@@ -25,6 +26,7 @@ public class VictoryScreen implements Screen {
     private OrthographicCamera camera;
     private BitmapFont font;
     private Texture pixel;
+    private GlyphLayout layout;
 
     private int selectedOption;
 
@@ -47,6 +49,7 @@ public class VictoryScreen implements Screen {
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
+        layout = new GlyphLayout();
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
@@ -74,49 +77,52 @@ public class VictoryScreen implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
-        float panelX = 95;
-        float panelY = 55;
         float panelWidth = screenWidth - 190;
-        float panelHeight = screenHeight - 110;
+        float panelHeight = screenHeight - 170;
+        float panelX = (screenWidth - panelWidth) / 2f;
+        float panelY = (screenHeight - panelHeight) / 2f;
 
         drawRect(panelX, panelY, panelWidth, panelHeight, new Color(0f, 0f, 0f, 0.35f));
         drawBorder(panelX, panelY, panelWidth, panelHeight, new Color(0.75f, 0.65f, 0.25f, 0.9f));
 
         font.setColor(new Color(1f, 0.9f, 0.35f, 1f));
         font.getData().setScale(2.2f);
-        font.draw(batch, "¡JUEGO COMPLETADO!", panelX + 85, panelY + panelHeight - 45);
+        drawCenteredInPanel("¡JUEGO COMPLETADO!", panelX, panelWidth, panelY + panelHeight - 45);
 
         if (enteringName) {
             font.setColor(Color.WHITE);
             font.getData().setScale(1.15f);
-            font.draw(batch, "Puntuación final: " + finalScore, panelX + 155, panelY + panelHeight - 115);
-            font.draw(batch, "Vidas restantes: " + currentLives, panelX + 160, panelY + panelHeight - 150);
+            drawCenteredInPanel("Puntuación final: " + finalScore, panelX, panelWidth, panelY + panelHeight - 115);
+            drawCenteredInPanel("Vidas restantes: " + currentLives, panelX, panelWidth, panelY + panelHeight - 150);
 
             font.getData().setScale(1.05f);
             font.setColor(new Color(0.9f, 0.95f, 0.9f, 1f));
-            font.draw(batch, "Has completado todos los niveles", panelX + 120, panelY + panelHeight - 205);
+            drawCenteredInPanel("Has completado todos los niveles", panelX, panelWidth, panelY + panelHeight - 205);
 
             font.getData().setScale(1f);
             font.setColor(Color.WHITE);
-            font.draw(batch, "Introduce tu nombre:", panelX + 145, panelY + panelHeight - 255);
+            drawCenteredInPanel("Introduce tu nombre:", panelX, panelWidth, panelY + panelHeight - 255);
 
-            drawRect(panelX + 135, panelY + panelHeight - 315, 300, 42, new Color(1f, 1f, 1f, 0.08f));
-            drawBorder(panelX + 135, panelY + panelHeight - 315, 300, 42, new Color(0.75f, 0.65f, 0.25f, 0.9f));
+            float inputWidth = 300f;
+            float inputX = panelX + (panelWidth - inputWidth) / 2f;
+
+            drawRect(inputX, panelY + panelHeight - 315, inputWidth, 42, new Color(1f, 1f, 1f, 0.08f));
+            drawBorder(inputX, panelY + panelHeight - 315, inputWidth, 42, new Color(0.75f, 0.65f, 0.25f, 0.9f));
 
             font.getData().setScale(1.1f);
             font.setColor(new Color(1f, 0.95f, 0.75f, 1f));
-            font.draw(batch, playerName + "_", panelX + 150, panelY + panelHeight - 286);
+            font.draw(batch, playerName + "_", inputX + 15, panelY + panelHeight - 286);
 
             font.getData().setScale(0.9f);
             font.setColor(new Color(0.8f, 0.85f, 0.8f, 1f));
-            font.draw(batch, "Pulsa ENTER para guardar tu puntuación", panelX + 100, panelY + 35);
+            drawCenteredInPanel("Pulsa ENTER para guardar tu puntuación", panelX, panelWidth, panelY + 45);
 
         } else {
             int visibleScores = Math.min(topScores.size, 5);
 
-            float rankingX = panelX + 90;
-            float rankingY = panelY + 70;
             float rankingWidth = panelWidth - 180;
+            float rankingX = panelX + (panelWidth - rankingWidth) / 2f;
+            float rankingY = panelY + 90;
             float rowHeight = 24f;
             float rankingHeight = 80 + visibleScores * rowHeight;
 
@@ -146,8 +152,10 @@ public class VictoryScreen implements Screen {
                 lineY -= rowHeight;
             }
 
-            drawMenuOption((selectedOption == 0 ? "> " : "  ") + "Salir al menú principal",
-                panelX + 135, panelY + 30, true);
+            String exitText = (selectedOption == 0 ? "> " : "  ") + "Salir al menú principal";
+            font.getData().setScale(1.15f);
+            layout.setText(font, exitText);
+            drawMenuOption(exitText, panelX + (panelWidth - layout.width) / 2f, panelY + 45, true);
         }
 
         batch.end();
@@ -189,6 +197,11 @@ public class VictoryScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             game.setScreen(new MainMenuScreen(game));
         }
+    }
+
+    private void drawCenteredInPanel(String text, float panelX, float panelWidth, float y) {
+        layout.setText(font, text);
+        font.draw(batch, text, panelX + (panelWidth - layout.width) / 2f, y);
     }
 
     private void drawMenuOption(String text, float x, float y, boolean selected) {

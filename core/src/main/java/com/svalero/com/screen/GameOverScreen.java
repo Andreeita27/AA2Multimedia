@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
 import com.svalero.com.manager.SoundManager;
@@ -17,6 +18,7 @@ public class GameOverScreen implements Screen {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
+    private GlyphLayout layout;
 
     public GameOverScreen(MiJuego game) {
         this.game = game;
@@ -30,7 +32,8 @@ public class GameOverScreen implements Screen {
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
-        font.getData().setScale(2f);
+
+        layout = new GlyphLayout();
 
         SoundManager.stopMusic();
         SoundManager.playLose();
@@ -46,14 +49,23 @@ public class GameOverScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
 
-        font.draw(batch, "GAME OVER", 240, 280);
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        font.getData().setScale(2f);
+        drawCenteredText("GAME OVER", screenWidth, screenHeight / 2f + 40);
+
         font.getData().setScale(1.2f);
-        font.draw(batch, "Pulsa ENTER para volver al menú.", 180, 220);
+        drawCenteredText("Pulsa ENTER para volver al menú.", screenWidth, screenHeight / 2f - 20);
 
         batch.end();
+    }
+
+    private void drawCenteredText(String text, float screenWidth, float y) {
+        layout.setText(font, text);
+        font.draw(batch, text, (screenWidth - layout.width) / 2f, y);
     }
 
     @Override
