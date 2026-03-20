@@ -139,6 +139,14 @@ public class LogicManager {
         if (playerPosition.x > maxX) {
             playerPosition.x = maxX;
         }
+
+        float topLimit = Gdx.graphics.getHeight() - Constants.PLAYER_HEIGHT - 20f;
+        if (playerPosition.y > topLimit) {
+            playerPosition.y = topLimit;
+            if (playerVelocity.y > 0) {
+                playerVelocity.y = 0;
+            }
+        }
     }
 
     private void checkPlatformCollisions() {
@@ -300,9 +308,10 @@ public class LogicManager {
 
     private void updateCamera() {
         float halfScreenWidth = Gdx.graphics.getWidth() / 2f;
+        float halfScreenHeight = Gdx.graphics.getHeight() / 2f;
 
         camera.position.x = playerPosition.x + Constants.PLAYER_WIDTH / 2f;
-        camera.position.y = Gdx.graphics.getHeight() / 2f;
+        camera.position.y = halfScreenHeight;
 
         if (camera.position.x < halfScreenWidth) {
             camera.position.x = halfScreenWidth;
