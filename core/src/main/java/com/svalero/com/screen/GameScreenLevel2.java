@@ -17,6 +17,7 @@ import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
 import com.svalero.com.manager.LevelManager;
+import com.svalero.com.manager.LogicManager;
 import com.svalero.com.manager.ResourceManager;
 import com.svalero.com.manager.SoundManager;
 import com.svalero.com.ui.HudRenderer;
@@ -35,35 +36,22 @@ public class GameScreenLevel2 implements Screen {
     private Texture background;
 
     private float stateTime;
-    private boolean facingRight;
 
     private Texture ground;
     private Texture platformTexture;
     private Texture gemTexture;
     private Texture exitTexture;
 
-    private Vector2 playerPosition;
-    private Vector2 playerVelocity;
-
-    private boolean onGround;
-
     private Array<Platform> platforms;
     private Array<Collectible> collectibles;
     private Array<Enemy> enemies;
     private LevelExit levelExit;
 
-    private int score;
     private int totalGems;
-    private int lives;
-    private int collectedGems;
-    private int killedMice;
 
-    private String message;
-    private float messageTimer;
-
-    private float invulnerableTimer;
     private LevelManager levelManager;
     private ResourceManager resourceManager;
+    private LogicManager logicManager;
 
     private HudRenderer hudRenderer;
 
@@ -85,14 +73,9 @@ public class GameScreenLevel2 implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        playerPosition = new Vector2(40, Constants.GROUND_Y);
-        playerVelocity = new Vector2(0, 0);
-        onGround = true;
-
         resourceManager = new ResourceManager();
         resourceManager.loadPlayerResources();
         stateTime = 0f;
-        facingRight = true;
 
         levelManager = new LevelManager(2);
         levelManager.loadLevel();
@@ -105,35 +88,37 @@ public class GameScreenLevel2 implements Screen {
 
         resourceManager.loadEnemyResources(levelManager.getEnemyTexture());
 
-        score = initialScore;
-        lives = initialLives;
-        message = "";
-        messageTimer = 0f;
-        invulnerableTimer = 0f;
-        collectedGems = 0;
-        killedMice = 0;
-
         platforms = levelManager.getPlatforms();
         collectibles = levelManager.getCollectibles();
         enemies = levelManager.getEnemies();
         levelExit = levelManager.getLevelExit();
         totalGems = levelManager.getTotalGems();
+        logicManager = new LogicManager(
+            camera,
+            platforms,
+            collectibles,
+            enemies,
+            levelExit,
+            initialScore,
+            initialLives,
+            new LogicManager.LogicCallbacks() {
+                @Override
+                public void onGameOver() {
+                    game.setScreen(new GameOverScreen(game));
+                }
+
+                @Override
+                public void onLevelCompleted(int score, int lives) {
+                    game.setScreen(new VictoryScreen(game, score, lives, false, 2));
+                }
+            }
+        );
     }
 
     @Override
     public void render(float delta) {
         stateTime += delta;
-        handleInput();
-        applyGravity(delta);
-        updatePlayer(delta);
-        checkPlatformCollisions();
-        updateEnemies(delta);
-        checkCollectibles();
-        checkEnemyCollisions();
-        checkLevelExit();
-        updateMessage(delta);
-        updateInvulnerability(delta);
-        updateCamera();
+        logicManager.update(delta);
 
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -148,252 +133,25 @@ public class GameScreenLevel2 implements Screen {
         drawCollectibles();
         drawEnemies();
         levelExit.draw(batch);
-        TextureRegion currentFrame = resourceManager.getCurrentPlayerFrame(stateTime, onGround, playerVelocity, facingRight);
-        batch.draw(currentFrame, playerPosition.x, playerPosition.y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT);
+
+        TextureRegion currentFrame = resourceManager.getCurrentPlayerFrame(
+            stateTime,
+            logicManager.isOnGround(),
+            logicManager.getPlayerVelocity(),
+            logicManager.isFacingRight()
+        );
+
+        batch.draw(
+            currentFrame,
+            logicManager.getPlayerPosition().x,
+            logicManager.getPlayerPosition().y,
+            Constants.PLAYER_WIDTH,
+            Constants.PLAYER_HEIGHT
+        );
 
         drawHud();
 
         batch.end();
-    }
-
-    private void handleInput() {
-        playerVelocity.x = 0;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            playerVelocity.x = -Constants.PLAYER_SPEED;
-            facingRight = false;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            playerVelocity.x = Constants.PLAYER_SPEED;
-            facingRight = true;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && onGround) {
-            playerVelocity.y = Constants.JUMP_FORCE;
-            onGround = false;
-            SoundManager.playJump();
-        }
-    }
-
-    private void applyGravity(float delta) {
-        if (!onGround) {
-            playerVelocity.y -= Constants.GRAVITY * delta;
-        }
-    }
-
-    private void updatePlayer(float delta) {
-        playerPosition.x += playerVelocity.x * delta;
-        playerPosition.y += playerVelocity.y * delta;
-
-        if (playerPosition.y <= Constants.GROUND_Y) {
-            playerPosition.y = Constants.GROUND_Y;
-            playerVelocity.y = 0;
-            onGround = true;
-        }
-
-        if (playerPosition.x < 0) {
-            playerPosition.x = 0;
-        }
-
-        float maxX = Constants.WORLD_WIDTH - Constants.PLAYER_WIDTH;
-        if (playerPosition.x > maxX) {
-            playerPosition.x = maxX;
-        }
-    }
-
-    private void checkPlatformCollisions() {
-        if (playerVelocity.y > 0) {
-            return;
-        }
-
-        float playerBottom = playerPosition.y;
-        float playerTop = playerPosition.y + Constants.PLAYER_HEIGHT;
-        float playerLeft = playerPosition.x;
-        float playerRight = playerPosition.x + Constants.PLAYER_WIDTH;
-
-        for (Platform platform : platforms) {
-            float platformLeft = platform.getBounds().x;
-            float platformRight = platform.getBounds().x + platform.getBounds().width;
-            float platformTop = platform.getBounds().y + platform.getBounds().height;
-
-            boolean horizontalOverlap = playerRight > platformLeft && playerLeft < platformRight;
-            boolean fallingOntoPlatform =
-                playerBottom <= platformTop + 12 &&
-                    playerBottom >= platformTop - 25 &&
-                    playerTop > platformTop;
-
-            if (horizontalOverlap && fallingOntoPlatform) {
-                playerPosition.y = platformTop;
-                playerVelocity.y = 0;
-                onGround = true;
-                return;
-            }
-        }
-
-        if (playerPosition.y > Constants.GROUND_Y + 1) {
-            onGround = false;
-        }
-    }
-
-    private void updateEnemies(float delta) {
-        for (Enemy enemy : enemies) {
-            enemy.update(delta);
-        }
-    }
-
-    private void checkCollectibles() {
-        Rectangle playerBounds = new Rectangle(
-            playerPosition.x,
-            playerPosition.y,
-            Constants.PLAYER_WIDTH,
-            Constants.PLAYER_HEIGHT
-        );
-
-        for (Collectible collectible : collectibles) {
-            if (!collectible.isCollected() && collectible.getBounds().overlaps(playerBounds)) {
-                collectible.collect();
-                collectedGems++;
-                score += 10;
-                SoundManager.playGem();
-
-                message = "¡Gema recogida! +10";
-                messageTimer = 1f;
-            }
-        }
-    }
-
-    private void checkEnemyCollisions() {
-        Rectangle playerBounds = new Rectangle(
-            playerPosition.x,
-            playerPosition.y,
-            Constants.PLAYER_WIDTH,
-            Constants.PLAYER_HEIGHT
-        );
-
-        for (Enemy enemy : enemies) {
-
-            if (!enemy.isAlive()) {
-                continue;
-            }
-
-            if (enemy.getBounds().overlaps(playerBounds)) {
-
-                if (enemy.getType() == Enemy.EnemyType.MOUSE) {
-
-                    boolean falling = playerVelocity.y < 0;
-
-                    boolean hittingFromAbove =
-                        playerPosition.y <= enemy.getBounds().y + enemy.getBounds().height + 20 &&
-                            playerPosition.y >= enemy.getBounds().y + enemy.getBounds().height - 25;
-
-                    if (falling && hittingFromAbove) {
-                        enemy.kill();
-                        killedMice++;
-
-                        playerVelocity.y = Constants.JUMP_FORCE * 0.6f;
-                        onGround = false;
-
-                        score += 25;
-                        SoundManager.playStomp();
-
-                        message = "¡Ratón aplastado!";
-                        messageTimer = 1.2f;
-
-                        return;
-                    }
-                }
-
-                if (invulnerableTimer > 0) {
-                    return;
-                }
-
-                lives--;
-                SoundManager.playHit();
-                invulnerableTimer = 1.5f;
-
-                message = "¡Ay! Te han golpeado";
-                messageTimer = 1.5f;
-
-                playerPosition.x = 40;
-                playerPosition.y = Constants.GROUND_Y;
-                playerVelocity.set(0, 0);
-                onGround = true;
-
-                if (lives <= 0) {
-                    game.setScreen(new GameOverScreen(game));
-                    return;
-                }
-
-                return;
-            }
-        }
-    }
-
-    private void checkLevelExit() {
-        Rectangle playerBounds = new Rectangle(
-            playerPosition.x,
-            playerPosition.y,
-            Constants.PLAYER_WIDTH,
-            Constants.PLAYER_HEIGHT
-        );
-
-        if (playerBounds.overlaps(levelExit.getBounds())) {
-            SoundManager.playWin();
-            game.setScreen(new VictoryScreen(game, score, lives, false, 2));
-        }
-    }
-
-    private boolean allGemsCollected() {
-        for (Collectible collectible : collectibles) {
-            if (!collectible.isCollected()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private int countRemainingGems() {
-        int remaining = 0;
-        for (Collectible collectible : collectibles) {
-            if (!collectible.isCollected()) {
-                remaining++;
-            }
-        }
-        return remaining;
-    }
-
-    private void updateMessage(float delta) {
-        if (messageTimer > 0) {
-            messageTimer -= delta;
-            if (messageTimer <= 0) {
-                message = "";
-            }
-        }
-    }
-
-    private void updateInvulnerability(float delta) {
-        if (invulnerableTimer > 0) {
-            invulnerableTimer -= delta;
-        }
-    }
-
-    private void updateCamera() {
-        float halfScreenWidth = Gdx.graphics.getWidth() / 2f;
-
-        camera.position.x = playerPosition.x + Constants.PLAYER_WIDTH / 2f;
-        camera.position.y = Gdx.graphics.getHeight() / 2f;
-
-        if (camera.position.x < halfScreenWidth) {
-            camera.position.x = halfScreenWidth;
-        }
-
-        float maxCameraX = Constants.WORLD_WIDTH - halfScreenWidth;
-        if (camera.position.x > maxCameraX) {
-            camera.position.x = maxCameraX;
-        }
-
-        camera.update();
     }
 
     private void drawBackground() {
@@ -447,15 +205,15 @@ public class GameScreenLevel2 implements Screen {
 
     private void drawHud() {
         hudRenderer.draw(
-                batch,
-                camera.position.x - Gdx.graphics.getWidth() / 2f,
-                Gdx.graphics.getHeight(),
-                lives,
-                Constants.INITIAL_LIVES,
-                totalGems - countRemainingGems(),
-                totalGems,
-                score,
-                2
+            batch,
+            camera.position.x - Gdx.graphics.getWidth() / 2f,
+            Gdx.graphics.getHeight(),
+            logicManager.getLives(),
+            Constants.INITIAL_LIVES,
+            totalGems - logicManager.countRemainingGems(),
+            totalGems,
+            logicManager.getScore(),
+            2
         );
     }
 
