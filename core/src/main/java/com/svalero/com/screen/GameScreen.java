@@ -113,10 +113,12 @@ public class GameScreen implements Screen {
 
                 @Override
                 public void onLevelCompleted(int score, int lives) {
-                    if (levelNumber == 1) {
-                        game.setScreen(new VictoryScreen(game, score, lives, true, 2));
+                    int maxLevel = 2;
+
+                    if (levelNumber < maxLevel) {
+                        game.setScreen(new GameScreen(game, levelNumber + 1, score, lives));
                     } else {
-                        game.setScreen(new VictoryScreen(game, score, lives, false, 2));
+                        game.setScreen(new VictoryScreen(game, score, lives));
                     }
                 }
             }
