@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.svalero.com.MiJuego;
 import com.svalero.com.manager.ConfigurationManager;
@@ -17,6 +18,7 @@ public class ConfigurationScreen implements Screen {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
+    private GlyphLayout layout;
 
     private int selectedOption;
 
@@ -34,6 +36,8 @@ public class ConfigurationScreen implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
+        layout = new GlyphLayout();
+
         selectedOption = 0;
     }
 
@@ -45,32 +49,42 @@ public class ConfigurationScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
 
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float titleY = screenHeight / 2f + 130;
+        float firstOptionY = screenHeight / 2f + 30;
+        float optionSpacing = 45f;
+        float helpY = screenHeight / 2f - 140;
+
         font.getData().setScale(1.8f);
-        font.draw(batch, "CONFIGURACIÓN", 230, 340);
+        drawCenteredText("CONFIGURACIÓN", screenWidth, titleY);
 
         font.getData().setScale(1.1f);
         drawOption(
             (selectedOption == 0 ? "> " : "  ") + "Música: " +
                 (ConfigurationManager.musicEnabled ? "ON" : "OFF"),
-            220, 250
+            screenWidth,
+            firstOptionY
         );
 
         drawOption(
             (selectedOption == 1 ? "> " : "  ") + "Sonido: " +
                 (ConfigurationManager.soundEnabled ? "ON" : "OFF"),
-            220, 210
+            screenWidth,
+            firstOptionY - optionSpacing
         );
 
         drawOption(
             (selectedOption == 2 ? "> " : "  ") + "Volver al menú principal",
-            220, 170
+            screenWidth,
+            firstOptionY - optionSpacing * 2
         );
 
         font.getData().setScale(0.9f);
-        font.draw(batch, "Usa ARRIBA/ABAJO y pulsa ENTER", 210, 110);
+        drawCenteredText("Usa ARRIBA/ABAJO y pulsa ENTER", screenWidth, helpY);
 
         batch.end();
     }
@@ -111,8 +125,14 @@ public class ConfigurationScreen implements Screen {
         }
     }
 
-    private void drawOption(String text, float x, float y) {
-        font.draw(batch, text, x, y);
+    private void drawOption(String text, float screenWidth, float y) {
+        layout.setText(font, text);
+        font.draw(batch, text, (screenWidth - layout.width) / 2f, y);
+    }
+
+    private void drawCenteredText(String text, float screenWidth, float y) {
+        layout.setText(font, text);
+        font.draw(batch, text, (screenWidth - layout.width) / 2f, y);
     }
 
     @Override
