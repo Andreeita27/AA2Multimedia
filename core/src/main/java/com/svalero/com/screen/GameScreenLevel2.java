@@ -1,7 +1,6 @@
 package com.svalero.com.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,17 +8,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.svalero.com.MiJuego;
 import com.svalero.com.domain.Collectible;
 import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
-import com.svalero.com.manager.LevelManager;
-import com.svalero.com.manager.LogicManager;
-import com.svalero.com.manager.ResourceManager;
-import com.svalero.com.manager.SoundManager;
+import com.svalero.com.manager.*;
 import com.svalero.com.ui.HudRenderer;
 import com.svalero.com.util.Constants;
 
@@ -52,6 +47,7 @@ public class GameScreenLevel2 implements Screen {
     private LevelManager levelManager;
     private ResourceManager resourceManager;
     private LogicManager logicManager;
+    private RenderManager renderManager;
 
     private HudRenderer hudRenderer;
 
@@ -113,6 +109,8 @@ public class GameScreenLevel2 implements Screen {
                 }
             }
         );
+
+        renderManager = new RenderManager(batch, hudRenderer, resourceManager);
     }
 
     @Override
@@ -124,97 +122,22 @@ public class GameScreenLevel2 implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
 
-        drawBackground();
-        drawGround();
-        drawPlatforms();
-        drawCollectibles();
-        drawEnemies();
-        levelExit.draw(batch);
-
-        TextureRegion currentFrame = resourceManager.getCurrentPlayerFrame(
+        renderManager.render(
             stateTime,
-            logicManager.isOnGround(),
-            logicManager.getPlayerVelocity(),
-            logicManager.isFacingRight()
-        );
-
-        batch.draw(
-            currentFrame,
-            logicManager.getPlayerPosition().x,
-            logicManager.getPlayerPosition().y,
-            Constants.PLAYER_WIDTH,
-            Constants.PLAYER_HEIGHT
-        );
-
-        drawHud();
-
-        batch.end();
-    }
-
-    private void drawBackground() {
-        batch.draw(background, 0, 0, Constants.WORLD_WIDTH, Gdx.graphics.getHeight());
-    }
-
-    private void drawGround() {
-        for (int x = 0; x < Constants.WORLD_WIDTH; x += 64) {
-            batch.draw(ground, x, 0, 64, 80);
-        }
-    }
-
-    private void drawPlatforms() {
-        for (Platform platform : platforms) {
-            platform.draw(batch);
-        }
-    }
-
-    private void drawCollectibles() {
-        for (Collectible collectible : collectibles) {
-            collectible.draw(batch);
-        }
-    }
-
-    private void drawEnemies() {
-        for (Enemy enemy : enemies) {
-            Rectangle bounds = enemy.getBounds();
-            float x = bounds.x;
-            float y = bounds.y;
-            float width = bounds.width;
-            float height = bounds.height;
-
-            switch (enemy.getType()) {
-                case BAT -> {
-                    TextureRegion frame = resourceManager.getBatFrame(stateTime);
-                    batch.draw(frame, x, y, width, height);
-                }
-
-                case MOUSE -> {
-                    TextureRegion frame = resourceManager.getMouseFrame(stateTime, enemy.isAlive());
-                    batch.draw(frame, x, y, width, height);
-                }
-
-                case FROG -> {
-                    TextureRegion frame = resourceManager.getFrogFrame(y);
-                    batch.draw(frame, x, y, width, height);
-                }
-            }
-        }
-    }
-
-    private void drawHud() {
-        hudRenderer.draw(
-            batch,
-            camera.position.x - Gdx.graphics.getWidth() / 2f,
-            Gdx.graphics.getHeight(),
-            logicManager.getLives(),
-            Constants.INITIAL_LIVES,
-            totalGems - logicManager.countRemainingGems(),
+            logicManager,
+            background,
+            ground,
+            platforms,
+            collectibles,
+            enemies,
+            levelExit,
             totalGems,
-            logicManager.getScore(),
             2
         );
+
+        batch.end();
     }
 
     @Override

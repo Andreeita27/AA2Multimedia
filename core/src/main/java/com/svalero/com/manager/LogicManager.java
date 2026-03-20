@@ -331,4 +331,8 @@ public class LogicManager {
         }
         return true;
     }
+
+    public float getCameraX() {
+        return camera.position.x;
+    }
 }
