@@ -35,10 +35,11 @@ public class RenderManager {
         Array<Enemy> enemies,
         LevelExit levelExit,
         int totalGems,
-        int levelNumber
+        int levelNumber,
+        float worldWidth
     ) {
-        drawBackground(background);
-        drawGround(ground);
+        drawBackground(background, worldWidth);
+        drawGround(ground, worldWidth);
         drawPlatforms(platforms);
         drawCollectibles(collectibles);
         drawEnemies(enemies, stateTime);
@@ -47,12 +48,12 @@ public class RenderManager {
         drawHud(logicManager, totalGems, levelNumber);
     }
 
-    private void drawBackground(Texture background) {
-        batch.draw(background, 0, 0, Constants.WORLD_WIDTH, Gdx.graphics.getHeight());
+    private void drawBackground(Texture background, float worldWidth) {
+        batch.draw(background, 0, 0, worldWidth, Gdx.graphics.getHeight());
     }
 
-    private void drawGround(Texture ground) {
-        batch.draw(ground, 0, 0, Constants.WORLD_WIDTH, Constants.GROUND_Y);
+    private void drawGround(Texture ground, float worldWidth) {
+        batch.draw(ground, 0, 0, worldWidth, Constants.GROUND_Y);
     }
 
     private void drawPlatforms(Array<Platform> platforms) {

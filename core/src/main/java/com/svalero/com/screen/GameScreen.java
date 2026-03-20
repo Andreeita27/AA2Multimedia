@@ -43,6 +43,7 @@ public class GameScreen implements Screen {
     private Array<Collectible> collectibles;
     private Array<Enemy> enemies;
     private LevelExit levelExit;
+    private float worldWidth;
 
     private int totalGems;
     private float stateTime;
@@ -97,6 +98,8 @@ public class GameScreen implements Screen {
         levelExit = levelManager.getLevelExit();
         totalGems = levelManager.getTotalGems();
 
+        worldWidth = levelManager.getWorldWidth();
+
         logicManager = new LogicManager(
             camera,
             platforms,
@@ -105,6 +108,7 @@ public class GameScreen implements Screen {
             levelExit,
             initialScore,
             initialLives,
+            worldWidth,
             new LogicManager.LogicCallbacks() {
                 @Override
                 public void onGameOver() {
@@ -113,7 +117,7 @@ public class GameScreen implements Screen {
 
                 @Override
                 public void onLevelCompleted(int score, int lives) {
-                    int maxLevel = 2;
+                    int maxLevel = 4;
 
                     if (levelNumber < maxLevel) {
                         game.setScreen(new GameScreen(game, levelNumber + 1, score, lives));
@@ -148,7 +152,8 @@ public class GameScreen implements Screen {
             enemies,
             levelExit,
             totalGems,
-            levelNumber
+            levelNumber,
+            worldWidth
         );
 
         batch.end();

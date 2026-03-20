@@ -30,6 +30,7 @@ public class LogicManager {
     private final LevelExit levelExit;
     private final LogicCallbacks callbacks;
 
+    private final float worldWidth;
     private final Vector2 playerPosition;
     private final Vector2 playerVelocity;
 
@@ -53,6 +54,7 @@ public class LogicManager {
         LevelExit levelExit,
         int initialScore,
         int initialLives,
+        float worldWidth,
         LogicCallbacks callbacks
     ) {
         this.camera = camera;
@@ -60,6 +62,7 @@ public class LogicManager {
         this.collectibles = collectibles;
         this.enemies = enemies;
         this.levelExit = levelExit;
+        this.worldWidth = worldWidth;
         this.callbacks = callbacks;
 
         this.playerPosition = new Vector2(40, Constants.GROUND_Y);
@@ -132,7 +135,7 @@ public class LogicManager {
             playerPosition.x = 0;
         }
 
-        float maxX = Constants.WORLD_WIDTH - Constants.PLAYER_WIDTH;
+        float maxX = worldWidth - Constants.PLAYER_WIDTH;
         if (playerPosition.x > maxX) {
             playerPosition.x = maxX;
         }
@@ -305,7 +308,7 @@ public class LogicManager {
             camera.position.x = halfScreenWidth;
         }
 
-        float maxCameraX = Constants.WORLD_WIDTH - halfScreenWidth;
+        float maxCameraX = worldWidth - halfScreenWidth;
         if (camera.position.x > maxCameraX) {
             camera.position.x = maxCameraX;
         }
