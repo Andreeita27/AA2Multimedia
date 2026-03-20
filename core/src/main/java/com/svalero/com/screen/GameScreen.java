@@ -17,6 +17,7 @@ import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
 import com.svalero.com.manager.LevelManager;
+import com.svalero.com.manager.ResourceManager;
 import com.svalero.com.manager.SoundManager;
 import com.svalero.com.ui.HudRenderer;
 import com.svalero.com.util.Constants;
@@ -32,24 +33,12 @@ public class GameScreen implements Screen {
     private BitmapFont font;
 
     private Texture background;
-    private Texture playerSheet;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> runAnimation;
-    private TextureRegion jumpFrame;
-    private TextureRegion fallFrame;
     private float stateTime;
     private boolean facingRight;
     private Texture ground;
     private Texture platformTexture;
     private Texture gemTexture;
     private Texture exitTexture;
-    private Texture enemySheet;
-    private Animation<TextureRegion> batAnimation;
-    private Animation<TextureRegion> mouseAnimation;
-    private TextureRegion mouseDeadFrame;
-    private TextureRegion frogIdleFrame;
-    private TextureRegion frogLeapFrame;
-
 
     private Vector2 playerPosition;
     private Vector2 playerVelocity;
@@ -74,6 +63,7 @@ public class GameScreen implements Screen {
 
     private HudRenderer hudRenderer;
     private LevelManager levelManager;
+    private ResourceManager resourceManager;
 
     public GameScreen(MiJuego game) {
         this(game, 0, Constants.INITIAL_LIVES);
@@ -97,8 +87,12 @@ public class GameScreen implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        playerSheet = new Texture(Gdx.files.internal("playersheet.png"));
-        loadPlayerAnimations();
+        playerPosition = new Vector2(40, Constants.GROUND_Y);
+        playerVelocity = new Vector2(0, 0);
+        onGround = true;
+
+        resourceManager = new ResourceManager();
+        resourceManager.loadPlayerResources();
         stateTime = 0f;
         facingRight = true;
 
@@ -110,13 +104,8 @@ public class GameScreen implements Screen {
         platformTexture = levelManager.getPlatformTexture();
         gemTexture = levelManager.getGemTexture();
         exitTexture = levelManager.getExitTexture();
-        enemySheet = levelManager.getEnemyTexture();
 
-        loadEnemyAnimations();
-
-        playerPosition = new Vector2(40, Constants.GROUND_Y);
-        playerVelocity = new Vector2(0, 0);
-        onGround = true;
+        resourceManager.loadEnemyResources(levelManager.getEnemyTexture());
 
         score = initialScore;
         lives = initialLives;
@@ -131,65 +120,6 @@ public class GameScreen implements Screen {
         enemies = levelManager.getEnemies();
         levelExit = levelManager.getLevelExit();
         totalGems = levelManager.getTotalGems();
-    }
-
-    private void loadPlayerAnimations() {
-        TextureRegion[][] frames = TextureRegion.split(playerSheet, 96, 128);
-
-        TextureRegion idle = new TextureRegion(frames[0][0]); // idle
-        TextureRegion jump = new TextureRegion(frames[0][1]); // jump
-        TextureRegion fall = new TextureRegion(frames[0][2]); // fall
-
-        TextureRegion run0 = new TextureRegion(frames[2][6]); // run0
-        TextureRegion run1 = new TextureRegion(frames[2][7]); // run1
-        TextureRegion run2 = new TextureRegion(frames[2][8]); // run2
-
-        idleAnimation = new Animation<>(0.2f, idle);
-        runAnimation = new Animation<>(0.12f, run0, run1, run2);
-        runAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        jumpFrame = jump;
-        fallFrame = fall;
-    }
-
-    private TextureRegion getCurrentPlayerFrame() {
-        TextureRegion currentFrame;
-
-        if (!onGround) {
-            if (playerVelocity.y > 0) {
-                currentFrame = new TextureRegion(jumpFrame);
-            } else {
-                currentFrame = new TextureRegion(fallFrame);
-            }
-        } else if (playerVelocity.x != 0) {
-            currentFrame = new TextureRegion(runAnimation.getKeyFrame(stateTime, true));
-        } else {
-            currentFrame = new TextureRegion(idleAnimation.getKeyFrame(stateTime, true));
-        }
-
-        if ((facingRight && currentFrame.isFlipX()) || (!facingRight && !currentFrame.isFlipX())) {
-            currentFrame.flip(true, false);
-        }
-
-        return currentFrame;
-    }
-
-    private void loadEnemyAnimations() {
-        TextureRegion batFrame1 = new TextureRegion(enemySheet, 71, 235, 70, 47);
-        TextureRegion batFrame2 = new TextureRegion(enemySheet, 0, 0, 88, 37);
-
-        batAnimation = new Animation<>(0.15f, batFrame1, batFrame2);
-        batAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        TextureRegion mouseFrame1 = new TextureRegion(enemySheet, 197, 475, 59, 35);
-        TextureRegion mouseFrame2 = new TextureRegion(enemySheet, 256, 475, 58, 35);
-        mouseDeadFrame = new TextureRegion(enemySheet, 202, 206, 59, 35);
-
-        mouseAnimation = new Animation<>(0.18f, mouseFrame1, mouseFrame2);
-        mouseAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        frogIdleFrame = new TextureRegion(enemySheet, 257, 45, 58, 39);
-        frogLeapFrame = new TextureRegion(enemySheet, 197, 336, 61, 54);
     }
 
     @Override
@@ -220,7 +150,7 @@ public class GameScreen implements Screen {
         drawCollectibles();
         drawEnemies();
         levelExit.draw(batch);
-        TextureRegion currentFrame = getCurrentPlayerFrame();
+        TextureRegion currentFrame = resourceManager.getCurrentPlayerFrame(stateTime, onGround, playerVelocity, facingRight);
         batch.draw(currentFrame, playerPosition.x, playerPosition.y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT);
 
         drawHud();
@@ -500,31 +430,17 @@ public class GameScreen implements Screen {
 
             switch (enemy.getType()) {
                 case BAT -> {
-                    TextureRegion frame = new TextureRegion(batAnimation.getKeyFrame(stateTime, true));
+                    TextureRegion frame = resourceManager.getBatFrame(stateTime);
                     batch.draw(frame, x, y, width, height);
                 }
 
                 case MOUSE -> {
-                    TextureRegion frame;
-
-                    if (enemy.isAlive()) {
-                        frame = new TextureRegion(mouseAnimation.getKeyFrame(stateTime, true));
-                    } else {
-                        frame = new TextureRegion(mouseDeadFrame);
-                    }
-
+                    TextureRegion frame = resourceManager.getMouseFrame(stateTime, enemy.isAlive());
                     batch.draw(frame, x, y, width, height);
                 }
 
                 case FROG -> {
-                    TextureRegion frame;
-
-                    if (y > Constants.GROUND_Y + 35) {
-                        frame = new TextureRegion(frogLeapFrame);
-                    } else {
-                        frame = new TextureRegion(frogIdleFrame);
-                    }
-
+                    TextureRegion frame = resourceManager.getFrogFrame(y);
                     batch.draw(frame, x, y, width, height);
                 }
             }
@@ -567,7 +483,10 @@ public class GameScreen implements Screen {
         hudRenderer.dispose();
         batch.dispose();
         font.dispose();
-        playerSheet.dispose();
+
+        if (resourceManager != null) {
+            resourceManager.dispose();
+        }
 
         if (levelManager != null) {
             levelManager.dispose();
