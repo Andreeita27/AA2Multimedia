@@ -244,7 +244,7 @@ public class VictoryScreen implements Screen {
 
     private void goToNextLevel() {
         if (nextLevel == 2) {
-            game.setScreen(new GameScreenLevel2(game, finalScore, currentLives));
+            game.setScreen(new GameScreen(game, 2, finalScore, currentLives));
         } else {
             game.setScreen(new MainMenuScreen(game));
         }

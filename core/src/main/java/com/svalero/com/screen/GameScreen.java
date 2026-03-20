@@ -4,22 +4,28 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.svalero.com.MiJuego;
 import com.svalero.com.domain.Collectible;
 import com.svalero.com.domain.Enemy;
 import com.svalero.com.domain.LevelExit;
 import com.svalero.com.domain.Platform;
-import com.svalero.com.manager.*;
+import com.svalero.com.manager.LevelManager;
+import com.svalero.com.manager.LogicManager;
+import com.svalero.com.manager.RenderManager;
+import com.svalero.com.manager.ResourceManager;
+import com.svalero.com.manager.SoundManager;
 import com.svalero.com.ui.HudRenderer;
 import com.svalero.com.util.Constants;
 
 public class GameScreen implements Screen {
 
     private final MiJuego game;
+    private final int levelNumber;
     private final int initialScore;
     private final int initialLives;
 
@@ -28,7 +34,6 @@ public class GameScreen implements Screen {
     private BitmapFont font;
 
     private Texture background;
-    private float stateTime;
     private Texture ground;
     private Texture platformTexture;
     private Texture gemTexture;
@@ -40,6 +45,7 @@ public class GameScreen implements Screen {
     private LevelExit levelExit;
 
     private int totalGems;
+    private float stateTime;
 
     private HudRenderer hudRenderer;
     private LevelManager levelManager;
@@ -48,11 +54,12 @@ public class GameScreen implements Screen {
     private RenderManager renderManager;
 
     public GameScreen(MiJuego game) {
-        this(game, 0, Constants.INITIAL_LIVES);
+        this(game, 1, 0, Constants.INITIAL_LIVES);
     }
 
-    public GameScreen(MiJuego game, int initialScore, int initialLives) {
+    public GameScreen(MiJuego game, int levelNumber, int initialScore, int initialLives) {
         this.game = game;
+        this.levelNumber = levelNumber;
         this.initialScore = initialScore;
         this.initialLives = initialLives;
     }
@@ -73,7 +80,7 @@ public class GameScreen implements Screen {
         resourceManager.loadPlayerResources();
         stateTime = 0f;
 
-        levelManager = new LevelManager(1);
+        levelManager = new LevelManager(levelNumber);
         levelManager.loadLevel();
 
         background = levelManager.getBackground();
@@ -89,6 +96,7 @@ public class GameScreen implements Screen {
         enemies = levelManager.getEnemies();
         levelExit = levelManager.getLevelExit();
         totalGems = levelManager.getTotalGems();
+
         logicManager = new LogicManager(
             camera,
             platforms,
@@ -105,7 +113,11 @@ public class GameScreen implements Screen {
 
                 @Override
                 public void onLevelCompleted(int score, int lives) {
-                    game.setScreen(new VictoryScreen(game, score, lives, true, 2));
+                    if (levelNumber == 1) {
+                        game.setScreen(new VictoryScreen(game, score, lives, true, 2));
+                    } else {
+                        game.setScreen(new VictoryScreen(game, score, lives, false, 2));
+                    }
                 }
             }
         );
@@ -134,7 +146,7 @@ public class GameScreen implements Screen {
             enemies,
             levelExit,
             totalGems,
-            1
+            levelNumber
         );
 
         batch.end();
