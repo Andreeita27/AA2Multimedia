@@ -185,7 +185,7 @@ public class LogicManager {
 
     private void updateEnemies(float delta) {
         for (Enemy enemy : enemies) {
-            enemy.update(delta);
+            enemy.update(delta, playerPosition.x);
         }
     }
 
