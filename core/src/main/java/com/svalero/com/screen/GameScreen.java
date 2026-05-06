@@ -64,10 +64,12 @@ public class GameScreen implements Screen {
     private LogicManager logicManager;
     private RenderManager renderManager;
 
+    // Para empezar una partida desde el nivel 1
     public GameScreen(MiJuego game) {
         this(game, 1, 0, Constants.INITIAL_LIVES);
     }
 
+    // Para cambiar de nivel manteniendo puntos y vidas
     public GameScreen(MiJuego game, int levelNumber, int initialScore, int initialLives) {
         this.game = game;
         this.levelNumber = levelNumber;
@@ -86,6 +88,7 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        // Camara separada para la interfaz
         uiCamera = new OrthographicCamera();
         uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -100,6 +103,7 @@ public class GameScreen implements Screen {
         paused = false;
         selectedPauseOption = 0;
 
+        // Carga del nivel actual mediante LevelManager
         levelManager = new LevelManager(levelNumber);
         levelManager.loadLevel();
 
@@ -119,6 +123,7 @@ public class GameScreen implements Screen {
 
         worldWidth = levelManager.getWorldWidth();
 
+        // Crea el LogicManager que controla todos los elementos del nivel
         logicManager = new LogicManager(
             camera,
             platforms,
@@ -147,17 +152,21 @@ public class GameScreen implements Screen {
             }
         );
 
+        // Crea el RenderManager para dibujar
         renderManager = new RenderManager(batch, hudRenderer, resourceManager);
     }
 
     @Override
     public void render(float delta) {
+        // Permite pausar o reanudar
         handlePauseToggle();
 
         if (!paused) {
+            // Actualiza el tiempo de animacionn y la logica del juego
             stateTime += delta;
             logicManager.update(delta);
         } else {
+            // Si esta en pausa no avanza la logica del juego
             handlePauseMenuInput();
         }
 
@@ -183,12 +192,14 @@ public class GameScreen implements Screen {
 
         batch.end();
 
+        // Si el juego esta pausado, se dibuja el overlay y el menu encima
         if (paused) {
             drawPauseOverlay();
             drawPauseMenu();
         }
     }
 
+    // Activa/desactiva el menu de pausa
     private void handlePauseToggle() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             paused = !paused;
@@ -198,6 +209,7 @@ public class GameScreen implements Screen {
         }
     }
 
+    // Controla las opciones del menu de pausa
     private void handlePauseMenuInput() {
         int maxOption = 4;
 
@@ -237,6 +249,7 @@ public class GameScreen implements Screen {
         }
     }
 
+    // Dibuja una capa oscura encima del jeugo cuando esta pausado
     private void drawPauseOverlay() {
         shapeRenderer.setProjectionMatrix(uiCamera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -245,6 +258,7 @@ public class GameScreen implements Screen {
         shapeRenderer.end();
     }
 
+    // Dibuja el menu de pausa
     private void drawPauseMenu() {
         batch.setProjectionMatrix(uiCamera.combined);
         batch.begin();

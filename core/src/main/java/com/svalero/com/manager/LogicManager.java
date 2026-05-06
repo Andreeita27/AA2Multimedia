@@ -18,12 +18,15 @@ import lombok.Setter;
 @Setter
 public class LogicManager {
 
+    // Para comunicar cosas importantes a GameScreen
     public interface LogicCallbacks {
         void onGameOver();
         void onLevelCompleted(int score, int lives);
     }
 
+    // Camara del jeugo
     private final OrthographicCamera camera;
+    // Elementos del nivel cargados desde LevelManager
     private final Array<Platform> platforms;
     private final Array<Collectible> collectibles;
     private final Array<Enemy> enemies;
@@ -31,19 +34,24 @@ public class LogicManager {
     private final LogicCallbacks callbacks;
 
     private final float worldWidth;
+    // Posicion y velocidad del jugador
     private final Vector2 playerPosition;
     private final Vector2 playerVelocity;
 
+    // Estado del jugador
     private boolean onGround;
     private boolean facingRight;
 
+    // Variables de progreso y puntuacion
     private int score;
     private int lives;
     private int collectedGems;
     private int killedMice;
 
+    // Mensajes temporales mostrados en pantalla
     private String message;
     private float messageTimer;
+    // Tiempo de invulnerabilidad tras recibir daño
     private float invulnerableTimer;
 
     public LogicManager(
@@ -65,6 +73,7 @@ public class LogicManager {
         this.worldWidth = worldWidth;
         this.callbacks = callbacks;
 
+        // Posicion y velocidad inicial del jugador
         this.playerPosition = new Vector2(40, Constants.GROUND_Y);
         this.playerVelocity = new Vector2(0, 0);
 
@@ -95,19 +104,23 @@ public class LogicManager {
         updateCamera();
     }
 
+    // Gestiona el teclado y modifica la velocidad del jugador
     private void handleInput() {
         playerVelocity.x = 0;
 
+        // Movimiento izquierda
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             playerVelocity.x = -Constants.PLAYER_SPEED;
             facingRight = false;
         }
 
+        // Movimiento derecha
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             playerVelocity.x = Constants.PLAYER_SPEED;
             facingRight = true;
         }
 
+        // Salta solo si el jugador esta tocando el suelo
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && onGround) {
             playerVelocity.y = Constants.JUMP_FORCE;
             onGround = false;
@@ -115,31 +128,37 @@ public class LogicManager {
         }
     }
 
+    // Simula la gravedad recuciendo progresivamente la velocidad vertical
     private void applyGravity(float delta) {
         if (!onGround) {
             playerVelocity.y -= Constants.GRAVITY * delta;
         }
     }
 
+    // Actualiza la posicion del jugador y limita el movimiento dentro del mapa
     private void updatePlayer(float delta) {
         playerPosition.x += playerVelocity.x * delta;
         playerPosition.y += playerVelocity.y * delta;
 
+        // colision con el suelo
         if (playerPosition.y <= Constants.GROUND_Y) {
             playerPosition.y = Constants.GROUND_Y;
             playerVelocity.y = 0;
             onGround = true;
         }
 
+        // Limite izquierdo
         if (playerPosition.x < 0) {
             playerPosition.x = 0;
         }
 
+        // Limite derecho
         float maxX = worldWidth - Constants.PLAYER_WIDTH;
         if (playerPosition.x > maxX) {
             playerPosition.x = maxX;
         }
 
+        // Limite superior
         float topLimit = Gdx.graphics.getHeight() - Constants.PLAYER_HEIGHT - 20f;
         if (playerPosition.y > topLimit) {
             playerPosition.y = topLimit;
@@ -149,6 +168,7 @@ public class LogicManager {
         }
     }
 
+    // Comprueba si el jugador aterriza sobre las plataformas
     private void checkPlatformCollisions() {
         if (playerVelocity.y > 0) {
             return;
@@ -164,13 +184,16 @@ public class LogicManager {
             float platformRight = platform.getBounds().x + platform.getBounds().width;
             float platformTop = platform.getBounds().y + platform.getBounds().height;
 
+            // Comprueba solapamiento horizontal
             boolean horizontalOverlap = playerRight > platformLeft && playerLeft < platformRight;
+            // Comprueba si cae encima de la plataforma
             boolean fallingOntoPlatform =
                 playerBottom <= platformTop + 12 &&
                     playerBottom >= platformTop - 25 &&
                     playerTop > platformTop;
 
             if (horizontalOverlap && fallingOntoPlatform) {
+                // Coloca al jugador justo encima de la plataforma
                 playerPosition.y = platformTop;
                 playerVelocity.y = 0;
                 onGround = true;
@@ -178,17 +201,20 @@ public class LogicManager {
             }
         }
 
+        // Si no toca ninguna plataforma, vuelve a caer
         if (playerPosition.y > Constants.GROUND_Y + 1) {
             onGround = false;
         }
     }
 
+    // Actualiza todos los enemigos
     private void updateEnemies(float delta) {
         for (Enemy enemy : enemies) {
             enemy.update(delta, playerPosition.x);
         }
     }
 
+    // Comprueba si el jugador recoge gemas
     private void checkCollectibles() {
         Rectangle playerBounds = new Rectangle(
             playerPosition.x,
@@ -201,6 +227,7 @@ public class LogicManager {
             if (!collectible.isCollected() && collectible.getBounds().overlaps(playerBounds)) {
                 collectible.collect();
                 collectedGems++;
+                // Suma puntos al marcador
                 score += 10;
                 SoundManager.playGem();
 
@@ -210,6 +237,7 @@ public class LogicManager {
         }
     }
 
+    // Gestiona las colisiones entre jugador y enemigos
     private void checkEnemyCollisions() {
         Rectangle playerBounds = new Rectangle(
             playerPosition.x,
@@ -226,6 +254,7 @@ public class LogicManager {
 
             if (enemy.getBounds().overlaps(playerBounds)) {
 
+                // Los ratones se mueren si saltas sobre ellos
                 if (enemy.getType() == Enemy.EnemyType.MOUSE) {
 
                     boolean falling = playerVelocity.y < 0;
@@ -238,6 +267,7 @@ public class LogicManager {
                         enemy.kill();
                         killedMice++;
 
+                        // Rebote tras aplastar al enemigo
                         playerVelocity.y = Constants.JUMP_FORCE * 0.6f;
                         onGround = false;
 
@@ -251,10 +281,12 @@ public class LogicManager {
                     }
                 }
 
+                // Invulnerabilidad temporal para evitar daño continuo
                 if (invulnerableTimer > 0) {
                     return;
                 }
 
+                // Resta vidas
                 lives--;
                 SoundManager.playHit();
                 invulnerableTimer = 1.5f;
@@ -262,11 +294,13 @@ public class LogicManager {
                 message = "¡Ay! Te han golpeado";
                 messageTimer = 1.5f;
 
+                // Reinicio de posicion tras recibir daño
                 playerPosition.x = 40;
                 playerPosition.y = Constants.GROUND_Y;
                 playerVelocity.set(0, 0);
                 onGround = true;
 
+                // Si no quedan vidas, muerto
                 if (lives <= 0) {
                     callbacks.onGameOver();
                     return;
@@ -277,6 +311,7 @@ public class LogicManager {
         }
     }
 
+    // Comprueba si el jugador llega a la bandera final
     private void checkLevelExit() {
         Rectangle playerBounds = new Rectangle(
             playerPosition.x,
@@ -291,6 +326,7 @@ public class LogicManager {
         }
     }
 
+    // Gestiona mensajes temporales en la pantalla
     private void updateMessage(float delta) {
         if (messageTimer > 0) {
             messageTimer -= delta;
@@ -300,12 +336,14 @@ public class LogicManager {
         }
     }
 
+    // Reduce progresivamente el tiempo de invulnerabilidad
     private void updateInvulnerability(float delta) {
         if (invulnerableTimer > 0) {
             invulnerableTimer -= delta;
         }
     }
 
+    // Hace que la camara siga al jugador
     private void updateCamera() {
         float halfScreenWidth = Gdx.graphics.getWidth() / 2f;
         float halfScreenHeight = Gdx.graphics.getHeight() / 2f;
@@ -313,10 +351,12 @@ public class LogicManager {
         camera.position.x = playerPosition.x + Constants.PLAYER_WIDTH / 2f;
         camera.position.y = halfScreenHeight;
 
+        // Evita que la camara salga del mapa por la izquierda
         if (camera.position.x < halfScreenWidth) {
             camera.position.x = halfScreenWidth;
         }
 
+        // Evita que la camara salga del mapa por la derecha
         float maxCameraX = worldWidth - halfScreenWidth;
         if (camera.position.x > maxCameraX) {
             camera.position.x = maxCameraX;
@@ -325,6 +365,7 @@ public class LogicManager {
         camera.update();
     }
 
+    // Cuenta las gemas que quedan aun por recoger
     public int countRemainingGems() {
         int remaining = 0;
         for (Collectible collectible : collectibles) {
@@ -335,15 +376,7 @@ public class LogicManager {
         return remaining;
     }
 
-    public boolean allGemsCollected() {
-        for (Collectible collectible : collectibles) {
-            if (!collectible.isCollected()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    // Devuelve la posicion X de la camara
     public float getCameraX() {
         return camera.position.x;
     }

@@ -15,10 +15,13 @@ import lombok.Setter;
 @Setter
 public class LevelManager {
 
+    // Numero del nivel que se va a cargar
     private final int levelNumber;
 
+    // Anchura total del mundo para limitar la camara y el avance del jugador
     private float worldWidth;
 
+    // Texturas propias de cada nivel
     private Texture background;
     private Texture ground;
     private Texture platformTexture;
@@ -26,6 +29,7 @@ public class LevelManager {
     private Texture exitTexture;
     private Texture enemyTexture;
 
+    // Elementos que forman cada nivel
     private Array<Platform> platforms;
     private Array<Collectible> collectibles;
     private Array<Enemy> enemies;
@@ -35,6 +39,7 @@ public class LevelManager {
         this.levelNumber = levelNumber;
     }
 
+    // Inicializa y carga el nivel correspondiente
     public void loadLevel() {
         platforms = new Array<>();
         collectibles = new Array<>();
@@ -49,8 +54,10 @@ public class LevelManager {
         }
     }
 
+    // Nivel 1 - hierba
     private void loadLevel1() {
         worldWidth = 1390f;
+        // Carga de recursos graficos
         background = new Texture(Gdx.files.internal("grassbackground.png"));
         ground = new Texture(Gdx.files.internal("grassground.png"));
         platformTexture = new Texture(Gdx.files.internal("grassplatform.png"));
@@ -123,6 +130,7 @@ public class LevelManager {
         ));
     }
 
+    // Nivel 2 - Desierto
     private void loadLevel2() {
         worldWidth = 1390f;
         background = new Texture(Gdx.files.internal("sandbackground.png"));
@@ -211,6 +219,7 @@ public class LevelManager {
         ));
     }
 
+    // Nivel 3 - Nieve
     private void loadLevel3() {
         worldWidth = 1750f;
         background = new Texture(Gdx.files.internal("snowbackground.png"));
@@ -325,6 +334,7 @@ public class LevelManager {
         ));
     }
 
+    // Nivel 4 - Montaña
     private void loadLevel4() {
         worldWidth = 2120f;
         background = new Texture(Gdx.files.internal("stonebackground.png"));
@@ -467,10 +477,12 @@ public class LevelManager {
         ));
     }
 
+    // Cuantas gemas tiene el nivel para saber si el jugador las ha recogido todas
     public int getTotalGems() {
         return collectibles.size;
     }
 
+    // Libera las texturas cargadas
     public void dispose() {
         if (background != null) background.dispose();
         if (ground != null) ground.dispose();

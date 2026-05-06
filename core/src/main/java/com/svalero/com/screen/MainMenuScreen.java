@@ -44,6 +44,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // Lee las teclas del usuario
         handleInput();
 
         Gdx.gl.glClearColor(0.08f, 0.08f, 0.12f, 1f);
@@ -60,15 +61,18 @@ public class MainMenuScreen implements Screen {
         float optionSpacing = 45f;
         float helpY = screenHeight / 2f - 150;
 
+        // Titulo
         font.getData().setScale(2f);
         drawCenteredText("ADVENTURER PLATFORM", screenWidth, titleY);
 
+        // Opciones del menu
         font.getData().setScale(1.2f);
         drawOption((selectedOption == 0 ? "> " : "  ") + "Jugar", screenWidth, firstOptionY);
         drawOption((selectedOption == 1 ? "> " : "  ") + "Instrucciones", screenWidth, firstOptionY - optionSpacing);
         drawOption((selectedOption == 2 ? "> " : "  ") + "Configuración", screenWidth, firstOptionY - optionSpacing * 2);
         drawOption((selectedOption == 3 ? "> " : "  ") + "Salir", screenWidth, firstOptionY - optionSpacing * 3);
 
+        // Texto de ayuda
         font.getData().setScale(0.9f);
         drawCenteredText("Usa ARRIBA/ABAJO y pulsa ENTER", screenWidth, helpY);
 

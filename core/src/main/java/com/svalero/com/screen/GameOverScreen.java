@@ -14,7 +14,9 @@ import com.svalero.com.manager.SoundManager;
 
 public class GameOverScreen implements Screen {
 
+    // Referencia al juego principal para poder cambiar de pantalla
     private final MiJuego game;
+    // Recursos para dibujar texto en la pantalla
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
@@ -35,12 +37,14 @@ public class GameOverScreen implements Screen {
 
         layout = new GlyphLayout();
 
+        // Al perder se detiene la musica y se reproduce el sonido de derrota
         SoundManager.stopMusic();
         SoundManager.playLose();
     }
 
     @Override
     public void render(float delta) {
+        // Permite jugar otra partida sin cerrar el juego
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             game.setScreen(new MainMenuScreen(game));
         }
