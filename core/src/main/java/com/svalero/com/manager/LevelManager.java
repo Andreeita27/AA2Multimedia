@@ -77,11 +77,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 520,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 90f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 120,
                 Enemy.EnemyType.FROG
         ));
@@ -89,11 +89,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 1120,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 90f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 120,
                 Enemy.EnemyType.FROG
         ));
@@ -153,11 +153,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 315,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 100f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 130,
                 Enemy.EnemyType.FROG
         ));
@@ -165,11 +165,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 900,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 100f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 130,
                 Enemy.EnemyType.FROG
         ));
@@ -243,11 +243,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 360,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 115f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 145,
                 Enemy.EnemyType.FROG
         ));
@@ -255,11 +255,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 930,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 115f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 145,
                 Enemy.EnemyType.FROG
         ));
@@ -267,11 +267,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 1450,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 120f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 150,
                 Enemy.EnemyType.FROG
         ));
@@ -361,11 +361,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 360,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 130f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 155,
                 Enemy.EnemyType.FROG
         ));
@@ -373,11 +373,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 930,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 130f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 155,
                 Enemy.EnemyType.FROG
         ));
@@ -385,11 +385,11 @@ public class LevelManager {
         enemies.add(new Enemy(
                 placeholderEnemyTexture,
                 1540,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 48,
                 48,
                 135f,
-                Constants.GROUND_Y + 20,
+                Constants.GROUND_Y,
                 Constants.GROUND_Y + 160,
                 Enemy.EnemyType.FROG
         ));
