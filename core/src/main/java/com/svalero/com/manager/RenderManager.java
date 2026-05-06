@@ -15,8 +15,11 @@ import com.svalero.com.util.Constants;
 
 public class RenderManager {
 
+    // SpriteBatch es el objeto de libgdx que dibuja texturas en la pantalla
     private final SpriteBatch batch;
+    // Clase encargada de dibujar la info del hud
     private final HudRenderer hudRenderer;
+    //Gestiona los frames de animacion del jugador y los enemigos
     private final ResourceManager resourceManager;
 
     public RenderManager(SpriteBatch batch, HudRenderer hudRenderer, ResourceManager resourceManager) {
@@ -25,6 +28,8 @@ public class RenderManager {
         this.resourceManager = resourceManager;
     }
 
+    // Metodo principal de renderizado
+    // Dibuja en orden concreto: fondo, suelo, objetos, enemigos, jugador y hud
     public void render(
         float stateTime,
         LogicManager logicManager,
@@ -48,20 +53,24 @@ public class RenderManager {
         drawHud(logicManager, totalGems, levelNumber);
     }
 
+    // Fondo ocupando el ancho del nivel
     private void drawBackground(Texture background, float worldWidth) {
         batch.draw(background, 0, 0, worldWidth, Gdx.graphics.getHeight());
     }
 
+    // Suelo desde abajo hasta la altura definida en constantes
     private void drawGround(Texture ground, float worldWidth) {
         batch.draw(ground, 0, 0, worldWidth, Constants.GROUND_Y);
     }
 
+    // Plataformas
     private void drawPlatforms(Array<Platform> platforms) {
         for (Platform platform : platforms) {
             platform.draw(batch);
         }
     }
 
+    // Gemas que aun no han sido recogidas
     private void drawCollectibles(Array<Collectible> collectibles) {
         for (Collectible collectible : collectibles) {
             if (!collectible.isCollected()) {
@@ -70,6 +79,7 @@ public class RenderManager {
         }
     }
 
+    // Enemigos con animacion distinta dependiendo del tipo
     private void drawEnemies(Array<Enemy> enemies, float stateTime) {
         for (Enemy enemy : enemies) {
             Rectangle bounds = enemy.getBounds();
@@ -80,16 +90,19 @@ public class RenderManager {
 
             switch (enemy.getType()) {
                 case BAT -> {
+                    // Animacion en funcion del tiempo
                     TextureRegion frame = resourceManager.getBatFrame(stateTime);
                     batch.draw(frame, x, y, width, height);
                 }
 
                 case MOUSE -> {
+                    // Frame distinto si esta vivo o muerto
                     TextureRegion frame = resourceManager.getMouseFrame(stateTime, enemy.isAlive());
                     batch.draw(frame, x, y, width, height);
                 }
 
                 case FROG -> {
+                    // Cambia segun su posicion vertical
                     TextureRegion frame = resourceManager.getFrogFrame(y);
                     batch.draw(frame, x, y, width, height);
                 }
@@ -97,6 +110,7 @@ public class RenderManager {
         }
     }
 
+    // Dibuja al jugador con el frame adecuado segun su estado
     private void drawPlayer(LogicManager logicManager, float stateTime) {
         TextureRegion currentFrame = resourceManager.getCurrentPlayerFrame(
             stateTime,
@@ -114,6 +128,7 @@ public class RenderManager {
         );
     }
 
+    // Dibuja el hud ajustandolo a la posicion de la camara
     private void drawHud(LogicManager logicManager, int totalGems, int levelNumber) {
         hudRenderer.draw(
             batch,

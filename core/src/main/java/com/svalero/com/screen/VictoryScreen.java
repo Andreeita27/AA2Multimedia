@@ -30,8 +30,11 @@ public class VictoryScreen implements Screen {
 
     private int selectedOption;
 
+    // Controla si el jugador esta escribiendo su nombre
     private boolean enteringName;
+    // Nombre del jugador
     private String playerName;
+    // Lista de mejores puntuaciones cargadas desde ScoreManager
     private Array<Score> topScores;
 
     public VictoryScreen(MiJuego game, int finalScore, int currentLives) {
@@ -51,6 +54,7 @@ public class VictoryScreen implements Screen {
         font.setColor(Color.WHITE);
         layout = new GlyphLayout();
 
+        // Crea una textura blanca de 1x1 que se reutiliza para dibujar rectangulos y bordes de panel
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
         pixmap.fill();
@@ -59,8 +63,10 @@ public class VictoryScreen implements Screen {
 
         selectedOption = 0;
 
+        // Al principio se muestra el formulario para introducir nombre
         enteringName = true;
         playerName = "";
+        // Carga el ranking anterior
         topScores = ScoreManager.loadScores();
     }
 
@@ -77,6 +83,7 @@ public class VictoryScreen implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
+        // Panel central donde se muestra la informacion
         float panelWidth = screenWidth - 190;
         float panelHeight = screenHeight - 170;
         float panelX = (screenWidth - panelWidth) / 2f;
@@ -90,6 +97,7 @@ public class VictoryScreen implements Screen {
         drawCenteredInPanel("¡JUEGO COMPLETADO!", panelX, panelWidth, panelY + panelHeight - 45);
 
         if (enteringName) {
+            // Vista inicial con puntuacion, vidas y pide nombre
             font.setColor(Color.WHITE);
             font.getData().setScale(1.15f);
             drawCenteredInPanel("Puntuación final: " + finalScore, panelX, panelWidth, panelY + panelHeight - 115);
@@ -106,11 +114,13 @@ public class VictoryScreen implements Screen {
             float inputWidth = 300f;
             float inputX = panelX + (panelWidth - inputWidth) / 2f;
 
+            // Caja donde se escribe el nombre
             drawRect(inputX, panelY + panelHeight - 315, inputWidth, 42, new Color(1f, 1f, 1f, 0.08f));
             drawBorder(inputX, panelY + panelHeight - 315, inputWidth, 42, new Color(0.75f, 0.65f, 0.25f, 0.9f));
 
             font.getData().setScale(1.1f);
             font.setColor(new Color(1f, 0.95f, 0.75f, 1f));
+            // Se muestra el nombre escrito
             font.draw(batch, playerName + "_", inputX + 15, panelY + panelHeight - 286);
 
             font.getData().setScale(0.9f);
@@ -118,7 +128,8 @@ public class VictoryScreen implements Screen {
             drawCenteredInPanel("Pulsa ENTER para guardar tu puntuación", panelX, panelWidth, panelY + 45);
 
         } else {
-            int visibleScores = Math.min(topScores.size, 5);
+            // Vista posterior que muestra el ranking tras guardar la puntuacion
+            int visibleScores = Math.min(topScores.size, 10);
 
             float rankingWidth = panelWidth - 180;
             float rankingX = panelX + (panelWidth - rankingWidth) / 2f;
@@ -131,7 +142,7 @@ public class VictoryScreen implements Screen {
 
             font.getData().setScale(1.15f);
             font.setColor(new Color(1f, 0.9f, 0.35f, 1f));
-            font.draw(batch, "TOP 5 PUNTUACIONES", rankingX + 35, rankingY + rankingHeight - 18);
+            font.draw(batch, "TOP 10 PUNTUACIONES", rankingX + 35, rankingY + rankingHeight - 18);
 
             font.getData().setScale(0.95f);
             font.setColor(new Color(0.85f, 0.85f, 0.85f, 1f));
@@ -140,6 +151,7 @@ public class VictoryScreen implements Screen {
 
             float lineY = rankingY + rankingHeight - 78;
 
+            // Recorre las puntuaciones guardadas y las dibuja en pantalla
             for (int i = 0; i < visibleScores; i++) {
                 Score entry = topScores.get(i);
 
@@ -161,32 +173,39 @@ public class VictoryScreen implements Screen {
         batch.end();
     }
 
+    // Controla la entrada del nombre y la navegacion posterior
     private void handleInput() {
         if (enteringName) {
+            // Permite borrar caracteres
             if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
                 playerName = playerName.substring(0, playerName.length() - 1);
             }
 
+            // Permite introducir letras de la A a la Z
             for (int key = Input.Keys.A; key <= Input.Keys.Z; key++) {
                 if (Gdx.input.isKeyJustPressed(key) && playerName.length() < 12) {
                     playerName += (char) ('A' + (key - Input.Keys.A));
                 }
             }
 
+            // Permite introducir numeros
             for (int i = 0; i <= 9; i++) {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_0 + i) && playerName.length() < 12) {
                     playerName += i;
                 }
             }
 
+            // Permite espacios
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && playerName.length() < 12) {
                 playerName += " ";
             }
 
+            // Guarda al pulsar enter
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 if (!playerName.trim().isEmpty()) {
                     ScoreManager.saveScore(playerName.trim(), finalScore);
                     topScores = ScoreManager.loadScores();
+                    // Cambia de modo, deja de pedir nombre y muestra ranking
                     enteringName = false;
                     selectedOption = 0;
                 }
@@ -194,6 +213,7 @@ public class VictoryScreen implements Screen {
             return;
         }
 
+        // Despues de guardar la puntuacion, se vuelve al menu principal con enter
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             game.setScreen(new MainMenuScreen(game));
         }

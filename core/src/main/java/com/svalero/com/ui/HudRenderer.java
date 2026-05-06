@@ -15,17 +15,21 @@ public class HudRenderer {
     private final Texture panelTexture;
 
     public HudRenderer() {
+        // Fuente principal
         font = new BitmapFont();
         font.getData().setScale(1.15f);
         font.setColor(Color.WHITE);
 
+        // Fuente secundaria
         smallFont = new BitmapFont();
         smallFont.getData().setScale(1.15f);
         smallFont.setColor(new Color(0.92f, 0.92f, 0.92f, 1f));
 
+        // Carga de iconos
         heartIcon = new Texture("hearthud.png");
         gemIcon = new Texture("gemhud.png");
 
+        // Textura de 1x1 para usarla como panel semitransparente del hud
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(0f, 0f, 0f, 0.45f);
         pixmap.fill();
@@ -33,6 +37,7 @@ public class HudRenderer {
         pixmap.dispose();
     }
 
+    // Dibuja la info del hud
     public void draw(
         SpriteBatch batch,
         float cameraLeft,
@@ -44,11 +49,13 @@ public class HudRenderer {
         int score,
         int level
     ) {
+        // Posicion y tamaño del panel principal
         float panelX = cameraLeft + 14;
         float panelY = screenHeight - 108;
         float panelWidth = 290;
         float panelHeight = 92;
 
+        // Fondo
         batch.draw(panelTexture, panelX, panelY, panelWidth, panelHeight);
 
         float topRowY = screenHeight - 28;
@@ -69,6 +76,7 @@ public class HudRenderer {
         drawTextWithShadow(batch, smallFont, "Nivel " + level, panelX + 170, bottomRowY);
     }
 
+    // dibuja texto con una pequeña sombra negra para que se lea mejor
     private void drawTextWithShadow(SpriteBatch batch, BitmapFont font, String text, float x, float y) {
         Color oldColor = font.getColor().cpy();
 
