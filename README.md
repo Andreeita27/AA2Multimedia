@@ -68,3 +68,39 @@ com.svalero.com
 ├── screen      → Pantallas del juego
 ├── ui          → HUD e interfaz
 └── util        → Constantes y utilidades
+```
+
+---
+
+# Arquitectura del proyecto
+
+El proyecto está organizado mediante distintos managers especializados:
+
+- `LogicManager` → lógica principal del gameplay
+- `RenderManager` → renderizado del juego
+- `LevelManager` → carga y configuración de niveles
+- `ResourceManager` → animaciones y recursos gráficos
+- `SoundManager` → música y efectos de sonido
+- `ScoreManager` → persistencia del ranking
+- `HudRenderer` → interfaz del jugador
+
+Esta separación permite mantener el código más limpio, reutilizable y fácil de mantener.
+
+---
+
+# Controles
+
+| Tecla | Acción |
+|---|---|
+| ← / → | Mover personaje |
+| SPACE | Saltar |
+| ESC / P | Pausar partida |
+| ENTER | Confirmar opciones |
+
+---
+
+# Objetivo del juego
+
+El jugador debe avanzar por los distintos niveles recogiendo gemas y evitando enemigos hasta llegar a la bandera final y completar todos los niveles.
+
+---
