@@ -1,33 +1,70 @@
-# AdventurerPlatform
+# Adventurer Platform
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Videojuego 2D desarrollado con **Java** y **libGDX** para la asignatura de **Programación Multimedia y Dispositivos Móviles (PMDM)**.
 
-This project was generated with a template including simple application launchers and a main class extending `Game` that sets the first screen.
+## Descripción
 
-## Platforms
+Adventurer Platform es un videojuego de plataformas en 2D donde el jugador debe superar distintos niveles, recoger gemas y evitar enemigos hasta completar la aventura.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+El proyecto ha sido desarrollado siguiendo el paradigma de **Programación Orientada a Objetos**, separando la lógica del juego, el renderizado, los niveles, los recursos y la interfaz en distintas clases especializadas.
 
-## Gradle
+---
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+# Características principales
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+- Personaje principal controlable
+- Sistema de salto y gravedad
+- 4 niveles diferentes
+- Enemigos con comportamientos distintos
+- Animaciones para jugador y NPCs
+- Sistema de puntuación
+- HUD con vidas, gemas, puntos y nivel actual
+- Pantalla de Game Over
+- Pantalla de victoria
+- Menú principal
+- Pantalla de instrucciones
+- Configuración de música y sonido
+- Menú de pausa durante la partida
+- Ranking de puntuaciones persistente
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+---
+
+# NPCs implementados
+
+El juego incluye distintos enemigos con comportamientos propios:
+
+- 🐸 Frog → enemigo con comportamiento reactivo (IA sencilla)
+- 🦇 Bat → enemigo volador con movimiento horizontal
+- 🐭 Mouse → enemigo terrestre que puede eliminarse saltando encima
+
+---
+
+# Funcionalidades extra implementadas
+
+✔ Ranking persistente con Top puntuaciones  
+✔ Menú de pausa durante la partida  
+✔ Dos niveles adicionales (4 niveles en total)  
+✔ IA sencilla en NPCs  
+✔ Animaciones completas en personajes y enemigos  
+
+---
+
+# Tecnologías utilizadas
+
+- Java
+- libGDX
+- Gradle
+- Programación Orientada a Objetos
+
+---
+
+# Estructura del proyecto
+
+```text
+com.svalero.com
+│
+├── domain      → Entidades del juego
+├── manager     → Lógica, niveles, renderizado, recursos, sonido...
+├── screen      → Pantallas del juego
+├── ui          → HUD e interfaz
+└── util        → Constantes y utilidades
